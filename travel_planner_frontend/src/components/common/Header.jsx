@@ -8,30 +8,33 @@ export default function Header() {
   const { theme, toggleTheme } = useTheme();
 
   const linkStyle = ({ isActive }) => ({
+    position: 'relative',
     textDecoration: 'none',
-    padding: '6px 10px',
-    borderRadius: '8px',
-    color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
-    background: isActive ? 'linear-gradient(90deg, var(--gradient-start), transparent)' : 'transparent',
-    border: '1px solid var(--color-border)',
+    padding: '8px 12px',
+    borderRadius: '10px',
+    color: isActive ? '#fff' : 'var(--color-text)',
+    background: isActive ? 'linear-gradient(180deg, var(--color-primary-500), var(--color-primary-600))' : 'transparent',
+    border: isActive ? '1px solid var(--color-primary-600)' : '1px solid var(--color-border)',
+    boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
   });
 
   return (
     <header
-      className="gradient-surface transition-base"
+      className="transition-base"
       style={{
         position: 'sticky',
         top: 0,
         zIndex: 50,
         borderBottom: '1px solid var(--color-border)',
-        backdropFilter: 'saturate(180%) blur(8px)',
+        backdropFilter: 'saturate(180%) blur(10px)',
+        background: 'linear-gradient(180deg, var(--gradient-start), transparent)',
       }}
       aria-label="Top navigation bar"
     >
       <div className="flex items-center justify-between px-4 p-4" style={{ maxWidth: 1280, margin: '0 auto' }}>
         <div className="flex items-center gap-4">
           <Link to="/" style={{ textDecoration: 'none', color: 'var(--color-text)' }}>
-            <strong style={{ fontSize: 18 }}>Travel Planner Pro</strong>
+            <strong style={{ fontSize: 'var(--text-xl)' }}>Travel Planner Pro</strong>
           </Link>
         </div>
         <nav aria-label="Primary">
@@ -44,7 +47,7 @@ export default function Header() {
         </nav>
         <button
           onClick={toggleTheme}
-          className="transition-base"
+          className="btn-base transition-base"
           aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
           style={{
             border: '1px solid var(--color-border)',

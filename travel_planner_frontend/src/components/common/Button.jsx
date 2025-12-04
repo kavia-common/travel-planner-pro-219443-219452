@@ -2,27 +2,28 @@ import React from 'react';
 
 // PUBLIC_INTERFACE
 export default function Button({ children, variant = 'primary', onClick, type = 'button', disabled = false, ariaLabel }) {
-  /** A themed button supporting primary, secondary, and ghost variants */
+  /** A themed button supporting primary, secondary, and ghost variants with improved motion and focus states */
   const base = {
     borderRadius: 'var(--radius-sm)',
     padding: '10px 14px',
-    fontWeight: 600,
+    fontWeight: 700,
     cursor: disabled ? 'not-allowed' : 'pointer',
     transition: 'var(--transition-base)',
     border: '1px solid var(--color-border)',
     background: 'var(--color-surface)',
     color: 'var(--color-text)',
     opacity: disabled ? 0.6 : 1,
+    boxShadow: 'var(--shadow-sm)',
   };
 
   const variants = {
     primary: {
-      background: 'var(--color-primary)',
-      border: '1px solid var(--color-primary)',
+      background: 'linear-gradient(180deg, var(--color-primary-500), var(--color-primary-600))',
+      border: '1px solid var(--color-primary-600)',
       color: '#fff',
     },
     secondary: {
-      background: 'var(--color-secondary)',
+      background: 'linear-gradient(180deg, rgba(245,158,11,0.95), var(--color-secondary))',
       border: '1px solid var(--color-secondary)',
       color: '#111827',
     },
@@ -42,7 +43,8 @@ export default function Button({ children, variant = 'primary', onClick, type = 
       onClick={onClick}
       disabled={disabled}
       style={style}
-      className="transition-base shadow-sm"
+      className="btn-base transition-base"
+      onMouseEnter={() => {}}
     >
       {children}
     </button>

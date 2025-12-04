@@ -80,7 +80,10 @@ export default function Trips() {
           </div>
         )}
         {!loading && !error && trips.length === 0 && (
-          <div className="text-muted">No trips yet. Use the Create Trip action to add your first itinerary.</div>
+          <div className="text-muted" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img src="/assets/empty-travel.png" alt="" aria-hidden style={{ width: 28, height: 28, opacity: 0.9 }} />
+            No trips yet. Use the Create Trip action to add your first itinerary.
+          </div>
         )}
         {!loading && !error && trips.length > 0 && (
           <TripList

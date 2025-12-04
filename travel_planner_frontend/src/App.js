@@ -20,7 +20,7 @@ function App() {
   return (
     <div className="app-shell">
       <Header />
-      <div className="main-area">
+      <div className="main-area bg-hero">
         <div className="layout-row">
           <Sidebar />
           <main aria-label="Main content" className="transition-base" style={{ minHeight: '60vh' }}>

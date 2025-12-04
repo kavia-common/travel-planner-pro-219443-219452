@@ -3,22 +3,22 @@ import { NavLink } from 'react-router-dom';
 
 // PUBLIC_INTERFACE
 export default function Sidebar() {
-  /** Sidebar with navigation, trip search, and placeholder trip list */
+  /** Sidebar with navigation, trip search, and placeholder trip list with icons */
   const [query, setQuery] = useState('');
 
   const links = [
-    { to: '/', label: 'Overview', end: true },
-    { to: '/trips', label: 'My Trips' },
-    { to: '/calendar', label: 'Calendar' },
-    { to: '/settings', label: 'Settings' },
+    { to: '/', label: 'Overview', end: true, icon: '🧭' },
+    { to: '/trips', label: 'My Trips', icon: '🧳' },
+    { to: '/calendar', label: 'Calendar', icon: '📅' },
+    { to: '/settings', label: 'Settings', icon: '⚙️' },
   ];
 
   // Placeholder trips for sidebar linking
   const trips = useMemo(
     () => [
-      { id: 'paris-2024', name: 'Paris Getaway' },
-      { id: 'tokyo-spring', name: 'Tokyo Spring' },
-      { id: 'alps-hike', name: 'Alps Hike' },
+      { id: 'paris-2024', name: 'Paris Getaway', icon: '🗼' },
+      { id: 'tokyo-spring', name: 'Tokyo Spring', icon: '🗾' },
+      { id: 'alps-hike', name: 'Alps Hike', icon: '⛰️' },
     ],
     []
   );
@@ -29,10 +29,11 @@ export default function Sidebar() {
     display: 'block',
     textDecoration: 'none',
     padding: '10px 12px',
-    color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
-    background: isActive ? 'linear-gradient(90deg, var(--gradient-start), transparent)' : 'transparent',
+    color: isActive ? '#fff' : 'var(--color-text)',
+    background: isActive ? 'linear-gradient(180deg, var(--color-primary-500), var(--color-primary-600))' : 'transparent',
     borderRadius: 'var(--radius-sm)',
-    border: '1px solid var(--color-border)',
+    border: isActive ? '1px solid var(--color-primary-600)' : '1px solid var(--color-border)',
+    boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
   });
 
   return (
@@ -44,11 +45,11 @@ export default function Sidebar() {
         height: 'calc(100vh - 64px)',
         position: 'sticky',
         top: 64,
-        padding: '1rem',
+        padding: 'var(--space-4)',
       }}
       aria-label="Sidebar navigation"
     >
-      <div className="mb-4 text-muted" style={{ fontWeight: 600, fontSize: 12, letterSpacing: 0.6 }}>
+      <div className="mb-4 text-muted" style={{ fontWeight: 700, fontSize: 'var(--text-xs)', letterSpacing: 0.6 }}>
         NAVIGATION
       </div>
       <nav>
@@ -56,6 +57,7 @@ export default function Sidebar() {
           {links.map((l) => (
             <li key={l.to}>
               <NavLink to={l.to} end={l.end} className="transition-base" style={linkStyle}>
+                <span style={{ marginRight: 8 }} aria-hidden>{l.icon}</span>
                 {l.label}
               </NavLink>
             </li>
@@ -63,7 +65,7 @@ export default function Sidebar() {
         </ul>
       </nav>
 
-      <div className="mt-4 text-muted" style={{ fontWeight: 600, fontSize: 12, letterSpacing: 0.6 }}>
+      <div className="mt-4 text-muted" style={{ fontWeight: 700, fontSize: 'var(--text-xs)', letterSpacing: 0.6 }}>
         TRIPS
       </div>
       <div className="mt-2" role="search">
@@ -76,23 +78,25 @@ export default function Sidebar() {
           className="transition-base"
           style={{
             width: '100%',
-            padding: '8px 10px',
+            padding: '10px 12px',
             borderRadius: 'var(--radius-sm)',
             border: '1px solid var(--color-border)',
             background: 'var(--color-surface)',
             color: 'var(--color-text)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         />
       </div>
       <ul style={{ listStyle: 'none', padding: 0, marginTop: 8, display: 'grid', gap: 6 }}>
         {filtered.length === 0 && (
-          <li className="text-muted" style={{ fontSize: 12 }}>
+          <li className="text-muted" style={{ fontSize: 'var(--text-sm)' }}>
             No trips found.
           </li>
         )}
         {filtered.map((t) => (
           <li key={t.id}>
             <NavLink to={`/trips/${t.id}`} className="transition-base" style={linkStyle}>
+              <span style={{ marginRight: 8 }} aria-hidden>{t.icon}</span>
               {t.name}
             </NavLink>
           </li>

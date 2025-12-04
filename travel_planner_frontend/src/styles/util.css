@@ -1,32 +1,91 @@
+/* Shadows */
 .shadow-sm { box-shadow: var(--shadow-sm); }
 .shadow-md { box-shadow: var(--shadow-md); }
 .shadow-lg { box-shadow: var(--shadow-lg); }
 
+/* Radii */
+.rounded-xs { border-radius: var(--radius-xs); }
+.rounded-sm { border-radius: var(--radius-sm); }
 .rounded-md { border-radius: var(--radius-md); }
 .rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
 
+/* Motion */
+.transition-fast { transition: var(--transition-fast); }
 .transition-base { transition: var(--transition-base); }
+.transition-slow { transition: var(--transition-slow); }
 
+/* Gradients and decorative */
 .gradient-surface {
   background: linear-gradient(180deg, var(--gradient-start), var(--gradient-end));
 }
+.bg-hero {
+  background:
+    var(--hero-gradient),
+    var(--color-background);
+}
+.bg-surface-2 { background: var(--color-surface-2); }
 
-/* Spacing helpers (minimal set for layout) */
-.p-4 { padding: 1rem; }
-.p-6 { padding: 1.5rem; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-.mt-4 { margin-top: 1rem; }
-.mb-4 { margin-bottom: 1rem; }
-.gap-2 { gap: 0.5rem; }
-.gap-4 { gap: 1rem; }
+/* Spacing helpers */
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-5 { padding: var(--space-5); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+.px-2 { padding-left: var(--space-2); padding-right: var(--space-2); }
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
 
-/* Text helpers */
+/* Typography helpers */
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
 .text-muted { color: var(--color-muted); }
 .text-primary { color: var(--color-primary); }
 .text-secondary { color: var(--color-secondary); }
 
-/* Flex helpers */
+/* Layout helpers */
+.grid { display: grid; }
 .flex { display: flex; }
 .items-center { align-items: center; }
 .justify-between { justify-content: space-between; }
+
+/* Interactive helpers */
+.interactive {
+  cursor: pointer;
+  user-select: none;
+  transition: var(--transition-fast);
+}
+.interactive:hover { filter: saturate(1.05); }
+.interactive:active { transform: translateY(0); }
+
+/* Button-like hover/focus feedback baseline */
+.btn-base {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(0);
+}
+.btn-base:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-base:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+.btn-base:focus-visible {
+  box-shadow: var(--focus-ring);
+}

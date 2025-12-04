@@ -10,10 +10,16 @@ export default function TripList({ trips = [], onView, onEdit, onDelete }) {
   return (
     <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: 8 }}>
       {trips.map((trip) => (
-        <li key={trip.id} className="surface rounded-md" style={{ padding: '0.75rem', border: '1px solid var(--color-border)' }}>
+        <li
+          key={trip.id}
+          className="surface rounded-md transition-base"
+          style={{ padding: '0.75rem', border: '1px solid var(--color-border)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: 600 }}>{trip.name || trip.title || trip.id}</div>
+              <div style={{ fontWeight: 700 }}>{trip.name || trip.title || trip.id}</div>
               {trip.description && <div className="text-muted" style={{ fontSize: 13, marginTop: 4 }}>{trip.description}</div>}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>

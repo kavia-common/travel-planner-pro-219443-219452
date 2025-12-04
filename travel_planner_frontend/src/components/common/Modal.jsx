@@ -3,13 +3,7 @@ import React, { useEffect, useRef } from 'react';
 // PUBLIC_INTERFACE
 export default function Modal({ open, onClose, title = 'Dialog', children, ariaDescribedBy, ariaLabelledBy, initialFocusRef }) {
   /**
-   * Accessible modal:
-   * - traps scroll behind
-   * - closes on Escape
-   * - backdrop click closes
-   * - focus trap with cycling tab
-   * - returns focus to previously focused element on close
-   * - sets aria attributes
+   * Accessible modal with polished visuals and motion
    */
   const overlayRef = useRef(null);
   const containerRef = useRef(null);
@@ -97,24 +91,25 @@ export default function Modal({ open, onClose, title = 'Dialog', children, ariaD
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(15, 23, 42, 0.45)',
+        background: 'rgba(2, 6, 23, 0.55)',
         display: 'grid',
         placeItems: 'center',
         zIndex: 100,
+        backdropFilter: 'blur(2px)',
       }}
     >
       <div
         ref={containerRef}
-        className="surface rounded-lg shadow-lg"
-        style={{ width: 'min(600px, 92vw)', padding: '1rem' }}
+        className="surface-elevated rounded-lg"
+        style={{ width: 'min(640px, 92vw)', padding: 'var(--space-4)', transform: 'translateY(0)' }}
         role="document"
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <h2 id={ariaLabelledBy} style={{ margin: 0, fontSize: 20 }}>{title}</h2>
+          <h2 id={ariaLabelledBy} style={{ margin: 0, fontSize: 'var(--text-xl)' }}>{title}</h2>
           <button
             onClick={onClose}
             aria-label="Close dialog"
-            className="transition-base"
+            className="btn-base transition-base"
             style={{
               border: '1px solid var(--color-border)',
               background: 'var(--color-surface)',

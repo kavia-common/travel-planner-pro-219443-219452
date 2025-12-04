@@ -1,44 +1,91 @@
 :root {
-  /* Ocean Professional Theme */
-  --color-primary: #2563EB; /* primary */
-  --color-secondary: #F59E0B; /* secondary/success accent */
-  --color-error: #EF4444;
-  --color-background: #f9fafb;
+  /* Ocean Professional - Polished v2 */
+  /* Core brand */
+  --color-primary: #2563EB; /* blue-600 */
+  --color-primary-600: #2563EB;
+  --color-primary-500: #3B82F6;
+  --color-primary-400: #60A5FA;
+  --color-secondary: #F59E0B; /* amber-500 */
+  --color-error: #EF4444; /* red-500 */
+  --color-success: #16A34A; /* green-600 */
+
+  /* Base surfaces */
+  --color-background: #F6F8FB; /* softer than pure gray-50 for less glare */
   --color-surface: #ffffff;
-  --color-text: #111827;
+  --color-surface-2: #F9FAFB;
+  --color-text: #0F172A; /* slate-900 */
 
   /* Derived */
-  --color-muted: #6B7280;
-  --color-border: #E5E7EB;
+  --color-muted: #64748B; /* slate-500 */
+  --color-border: #E5E7EB; /* gray-200 */
+  --color-border-strong: #D1D5DB; /* gray-300 */
 
   /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05);
-  --shadow-md: 0 4px 10px rgba(17, 24, 39, 0.08);
-  --shadow-lg: 0 10px 25px rgba(17, 24, 39, 0.12);
+  /* Spacing scale (8px base with half-steps) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
 
-  /* Transitions */
-  --transition-base: all 200ms ease;
+  /* Shadows - softer, layered */
+  --shadow-sm: 0 1px 2px rgba(2, 6, 23, 0.06);
+  --shadow-md: 0 2px 6px rgba(2, 6, 23, 0.08), 0 1px 2px rgba(2, 6, 23, 0.06);
+  --shadow-lg: 0 10px 30px rgba(2, 6, 23, 0.10), 0 4px 10px rgba(2, 6, 23, 0.06);
 
-  /* Gradient surface hint - "from-blue-500/10 to-gray-50" feel */
-  --gradient-start: rgba(37, 99, 235, 0.08); /* blue-500/10-ish */
-  --gradient-end: #f8fafc; /* gray-50-ish */
+  /* Motion */
+  --transition-fast: all 150ms ease;
+  --transition-base: all 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-slow: all 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Gradients and decorative */
+  --gradient-start: rgba(37, 99, 235, 0.10);
+  --gradient-end: #F8FAFC;
+  --hero-gradient: radial-gradient(1200px 600px at 20% -10%, rgba(37,99,235,0.18), transparent 60%),
+                   radial-gradient(900px 500px at 90% 0%, rgba(245,158,11,0.14), transparent 55%);
+
+  /* Focus ring with accessible contrast */
+  --focus-ring: 0 0 0 3px rgba(59,130,246,0.45);
+
+  /* Typography scale */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
 }
 
-/* Dark theme override */
+/* Dark theme override - improved contrast */
 [data-theme="dark"] {
-  --color-background: #0b1220;
-  --color-surface: #0f172a; /* slate-900-ish */
-  --color-text: #e5e7eb;
-  --color-muted: #94a3b8;
-  --color-border: #1f2937;
+  --color-background: #0B1220; /* deep navy */
+  --color-surface: #0F172A;    /* slate-900 */
+  --color-surface-2: #0B1220;
+  --color-text: #E5E7EB;       /* gray-200 */
+  --color-muted: #93A3B8;      /* slate-400/300 mix */
+  --color-border: #1F2937;     /* gray-800 border */
+  --color-border-strong: #334155;
 
-  --gradient-start: rgba(37, 99, 235, 0.18);
-  --gradient-end: #0b1220;
+  --gradient-start: rgba(37, 99, 235, 0.22);
+  --gradient-end: #0B1220;
+  --hero-gradient: radial-gradient(1200px 600px at 20% -10%, rgba(37,99,235,0.28), transparent 60%),
+                   radial-gradient(900px 500px at 90% 0%, rgba(245,158,11,0.22), transparent 55%);
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
+  --shadow-md: 0 2px 6px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.55), 0 4px 10px rgba(0,0,0,0.42);
+
+  --focus-ring: 0 0 0 3px rgba(59,130,246,0.55);
 }
 
 /* Base Resets + Background */
@@ -48,11 +95,21 @@ html, body, #root {
 
 body {
   margin: 0;
-  background: var(--color-background);
+  background:
+    var(--hero-gradient),
+    var(--color-background);
   color: var(--color-text);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: var(--transition-base);
 }
+
+/* Headings and text tweaks */
+h1, h2, h3, h4, h5, h6 { color: var(--color-text); margin: 0 0 var(--space-3); }
+h1 { font-size: var(--text-2xl); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: var(--text-xl); font-weight: 700; }
+h3 { font-size: var(--text-lg); font-weight: 700; }
 
 /* Gradient utility to apply subtle depth on surfaces */
 .gradient-surface {
@@ -67,9 +124,28 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+/* Elevated surface helper */
+.surface-elevated {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
 /* Focus ring */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 6px;
+}
+
+/* Interactive states baseline */
+a, button {
+  transition: var(--transition-fast);
+}
+button:hover, a.button:hover {
+  transform: translateY(-1px);
+}
+button:active, a.button:active {
+  transform: translateY(0);
 }
