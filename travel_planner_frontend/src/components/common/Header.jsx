@@ -57,6 +57,10 @@ export default function Header() {
             borderRadius: 'var(--radius-sm)',
             cursor: 'pointer',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.filter = 'saturate(1.05)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.filter = 'none'; }}
+          onFocus={(e) => { e.currentTarget.style.boxShadow = 'var(--focus-ring)'; }}
+          onBlur={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}
         >
           {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
         </button>

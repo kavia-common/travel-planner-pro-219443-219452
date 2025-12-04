@@ -24,6 +24,13 @@
     var(--hero-gradient),
     var(--color-background);
 }
+/* Additional gradient helpers keyed to new palette */
+.bg-primary-soft {
+  background: linear-gradient(180deg, rgba(20,184,166,0.15), rgba(20,184,166,0.05));
+}
+.bg-secondary-soft {
+  background: linear-gradient(180deg, rgba(251,113,133,0.18), rgba(251,113,133,0.06));
+}
 .bg-surface-2 { background: var(--color-surface-2); }
 
 /* Spacing helpers */

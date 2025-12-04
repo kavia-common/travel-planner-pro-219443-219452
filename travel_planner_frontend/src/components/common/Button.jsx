@@ -23,9 +23,9 @@ export default function Button({ children, variant = 'primary', onClick, type = 
       color: '#fff',
     },
     secondary: {
-      background: 'linear-gradient(180deg, rgba(245,158,11,0.95), var(--color-secondary))',
+      background: 'linear-gradient(180deg, rgba(251,113,133,0.95), var(--color-secondary))',
       border: '1px solid var(--color-secondary)',
-      color: '#111827',
+      color: 'var(--color-text)',
     },
     ghost: {
       background: 'transparent',
