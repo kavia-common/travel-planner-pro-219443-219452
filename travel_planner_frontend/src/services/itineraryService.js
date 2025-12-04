@@ -4,8 +4,20 @@
 
 import http, { createHttpClient } from './http';
 import { env } from '../config/env';
+import PlacesService from './placesService';
 
 const base = env.httpBase ? createHttpClient({ baseUrl: env.httpBase }) : http;
+
+function dateKey(d) {
+  if (!d) return '';
+  try {
+    const dt = typeof d === 'string' ? new Date(d) : d;
+    if (Number.isNaN(dt.getTime())) return '';
+    return dt.toISOString().slice(0, 10);
+  } catch {
+    return '';
+  }
+}
 
 // PUBLIC_INTERFACE
 export const ItineraryService = {
@@ -93,6 +105,98 @@ export const ItineraryService = {
     };
     return this.add(tripId, item);
   },
+
+  // PUBLIC_INTERFACE
+  /** getDailyItinerary - returns an ordered Map<dateKey, items[]> from trip and items */
+  getDailyItinerary(input) {
+    const items = input?.items || [];
+    const m = new Map();
+    for (const it of items) {
+      const k = dateKey(it.date || it.day || it.startDate);
+      if (!m.has(k)) m.set(k, []);
+      m.get(k).push(it);
+    }
+    // sort each day's items by time if present
+    for (const [k, arr] of m.entries()) {
+      arr.sort((a, b) => {
+        const ta = a.time || a.startTime || '';
+        const tb = b.time || b.startTime || '';
+        return String(ta).localeCompare(String(tb));
+      });
+      m.set(k, arr);
+    }
+    return m;
+  },
+
+  // PUBLIC_INTERFACE
+  /** getCoordinatesSequenceWithGeocoding - returns [{itemId, lat, lon, title, date}] in order, geocoding when needed with per-trip cache */
+  async getCoordinatesSequenceWithGeocoding(trip, items) {
+    const seq = [];
+    if (!items || items.length === 0) return seq;
+    const tripKey = trip?.id || trip?.tripId || 'current';
+    const cacheKey = `geo-cache-${tripKey}`;
+    let cache = {};
+    try {
+      cache = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+    } catch { /* ignore */ }
+
+    const saveCache = () => {
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(cache));
+      } catch { /* ignore */ }
+    };
+
+    // ordered by date/time
+    const sorted = [...items].sort((a, b) => {
+      const da = new Date(a.date || 0).getTime();
+      const db = new Date(b.date || 0).getTime();
+      if (da !== db) return da - db;
+      const ta = a.time || a.startTime || '';
+      const tb = b.time || b.startTime || '';
+      return String(ta).localeCompare(String(tb));
+    });
+
+    for (const it of sorted) {
+      let lat = it.location?.lat ?? it.lat;
+      let lon = it.location?.lon ?? it.lon;
+      let title = it.title || it.location?.name || it.destination || '';
+      if ((lat == null || lon == null) && (it.destination || it.location?.name || it.location?.city)) {
+        const query = it.destination || it.location?.name || it.location?.city;
+        if (cache[query]) {
+          lat = cache[query].lat;
+          lon = cache[query].lon;
+        } else {
+          try {
+            const results = await PlacesService.search(query);
+            if (results && results.length > 0) {
+              lat = results[0].lat;
+              lon = results[0].lon;
+              cache[query] = { lat, lon };
+              saveCache();
+            }
+          } catch {
+            // ignore geocode errors
+          }
+        }
+      }
+      if (typeof lat === 'number' && typeof lon === 'number' && !Number.isNaN(lat) && !Number.isNaN(lon)) {
+        seq.push({ itemId: it.id, lat, lon, title, date: it.date || null, id: it.location?.placeId || it.id });
+      }
+    }
+    return seq;
+  },
 };
 
 export default ItineraryService;
+
+// PUBLIC_INTERFACE
+export function getDailyItinerary(input) {
+  /** Exported helper that proxies to ItineraryService.getDailyItinerary for convenience. */
+  return ItineraryService.getDailyItinerary(input);
+}
+
+// PUBLIC_INTERFACE
+export async function getCoordinatesSequenceWithGeocoding(trip, items) {
+  /** Exported helper that proxies to ItineraryService.getCoordinatesSequenceWithGeocoding. */
+  return ItineraryService.getCoordinatesSequenceWithGeocoding(trip, items);
+}

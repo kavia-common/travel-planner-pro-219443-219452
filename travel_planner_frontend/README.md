@@ -129,6 +129,25 @@ Provider env vars:
 Routes:
 - The Places tab is within Trip Details. A direct route is also available: /trips/:tripId/places (renders TripDetails with the Places tab).
 
+## Timeline Map
+
+A split map + day-by-day timeline view shows multi-city routes with markers and a connecting polyline.
+
+- Provider selection via REACT_APP_MAP_PROVIDER=(maplibre|mapbox|google). Defaults to maplibre.
+- MapLibre works out of the box (no API key) using OpenStreetMap tiles.
+- If Mapbox is selected, set REACT_APP_MAPBOX_TOKEN.
+- If Google is selected, set REACT_APP_GOOGLE_MAPS_API_KEY.
+- Clicking a day/item focuses the corresponding marker.
+- Missing coordinates are resolved via geocoding using PlacesService and cached in localStorage per trip.
+
+Feature flag:
+- TIMELINE_MAP (default: true). Disable via REACT_APP_TIMELINE_MAP=false or REACT_APP_FEATURE_FLAGS JSON/comma syntax.
+
+Environment variables:
+- REACT_APP_MAP_PROVIDER=maplibre|mapbox|google (default maplibre)
+- REACT_APP_MAPBOX_TOKEN=... (when provider=mapbox)
+- REACT_APP_GOOGLE_MAPS_API_KEY=... (when provider=google)
+
 ## Environment Variables
 
 Place variables in a .env file at the project root (or use your CI/CD environment). All variables are prefixed with REACT_APP_ to be accessible at build time.

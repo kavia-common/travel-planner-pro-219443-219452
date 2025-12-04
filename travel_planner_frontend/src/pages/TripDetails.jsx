@@ -5,6 +5,8 @@ import PackingList from '../components/packing/PackingList';
 import BudgetDashboard from '../components/budget/BudgetDashboard';
 import Card from '../components/common/Card';
 import * as featureFlags from '../flags/featureFlags';
+import MapTimeline from '../components/timeline/MapTimeline';
+import { ItineraryService } from '../services/itineraryService';
 import ReminderForm from '../components/notifications/ReminderForm';
 import Modal from '../components/common/Modal';
 import Toast from '../components/common/Toast';
@@ -23,6 +25,21 @@ const TripDetails = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [toasts, setToasts] = useState([]);
+
+  // timeline items
+  const [itineraryItems, setItineraryItems] = useState([]);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const list = await ItineraryService.listByTrip(tripId);
+        if (mounted) setItineraryItems(Array.isArray(list) ? list : (list?.items || []));
+      } catch {
+        // if service falls back to localStorage inside, it will return items; otherwise ignore
+      }
+    })();
+    return () => { mounted = false; };
+  }, [tripId]);
 
   // tripId can be obtained from location or store; for demo use selected trip from URL hash or fallback
   // Since this page doesn't receive params here, scheduling will still persist per "unknown" trip; in real app wire tripId via router params.
@@ -123,6 +140,7 @@ const TripDetails = () => {
             <Tab id="calendar">Calendar</Tab>
             <Tab id="packing">Packing</Tab>
             <Tab id="budget">Budget</Tab>
+            {featureFlags.TIMELINE_MAP && <Tab id="timeline">Timeline</Tab>}
           </div>
         </div>
       </div>
@@ -189,6 +207,16 @@ const TripDetails = () => {
         {active === 'calendar' && <CalendarItinerary />}
         {active === 'packing' && <PackingList />}
         {active === 'budget' && <BudgetDashboard />}
+        {featureFlags.TIMELINE_MAP && active === 'timeline' && (
+          <MapTimeline
+            trip={{ id: tripId }}
+            items={itineraryItems}
+            onAddPlace={(dateKey) => {
+              // Simplified action: just show a toast; in real app open Places or Itinerary form prefilled with date
+              addToast(`Add place for ${dateKey}`);
+            }}
+          />
+        )}
       </Card>
 
       <Modal isOpen={open} onClose={() => { setOpen(false); setEditing(null); }} title={editing ? 'Edit reminder' : 'Add reminder'}>

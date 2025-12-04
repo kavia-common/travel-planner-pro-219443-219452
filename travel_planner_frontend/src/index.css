@@ -1,4 +1,7 @@
 @import './theme/ocean.css';
+
+/* Map marker subtle transition (Ocean Professional) */
+.marker { transition: transform 150ms ease; }
 @import './components/trips/TripWizard/wizard.css';
 
 /* baseline index styles (keep minimal to avoid conflicts) */

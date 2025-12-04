@@ -45,6 +45,7 @@ export const FEATURE_FLAGS = (() => {
     PLACES_SEARCH: true,
     REMINDERS: true,
     BROWSER_NOTIFICATIONS: true,
+    TIMELINE_MAP: true,
   };
 
   // Merge with overrides from sessionStorage (if any)
@@ -71,6 +72,7 @@ export const FEATURE_FLAGS = (() => {
   defaults.FEATURE_NOTIFICATIONS = boolEnv('FEATURE_NOTIFICATIONS', defaults.FEATURE_NOTIFICATIONS);
   defaults.REMINDERS = boolEnv('REMINDERS', defaults.REMINDERS);
   defaults.BROWSER_NOTIFICATIONS = boolEnv('BROWSER_NOTIFICATIONS', defaults.BROWSER_NOTIFICATIONS);
+  defaults.TIMELINE_MAP = boolEnv('TIMELINE_MAP', defaults.TIMELINE_MAP);
 
   return {
     ...defaults,
@@ -107,6 +109,7 @@ export const PACKING_LIST = FEATURE_FLAGS.PACKING_LIST;
 export const TRIP_WIZARD = FEATURE_FLAGS.TRIP_WIZARD;
 export const REMINDERS = FEATURE_FLAGS.REMINDERS;
 export const BROWSER_NOTIFICATIONS = FEATURE_FLAGS.BROWSER_NOTIFICATIONS;
+export const TIMELINE_MAP = FEATURE_FLAGS.TIMELINE_MAP;
 
 // Provide a default export object for legacy imports (backwards compatibility)
 const defaultExport = {
