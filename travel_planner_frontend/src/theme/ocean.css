@@ -1,25 +1,33 @@
 :root {
-  /* Color palette - Ocean Professional */
-  --color-primary: #2563EB;
-  --color-primary-600: #2563EB;
-  --color-primary-500: #3B82F6;
-  --color-primary-400: #60A5FA;
-  --color-secondary: #F59E0B;
-  --color-secondary-600: #D97706;
-  --color-success: #F59E0B; /* Accent success per spec */
-  --color-error: #EF4444;
-  --color-warning: #F59E0B;
-  --color-info: #60A5FA;
+  /* Color palette - Vibrant Theme */
+  /* Primary: Violet */
+  --color-primary: #7C3AED;      /* Violet 600 */
+  --color-primary-600: #6D28D9;  /* Violet 700 (Hover) */
+  --color-primary-500: #8B5CF6;  /* Violet 500 */
+  --color-primary-400: #A78BFA;  /* Violet 400 */
+  
+  /* Secondary: Orange */
+  --color-secondary: #F97316;    /* Orange 500 */
+  --color-secondary-600: #EA580C;/* Orange 600 (Hover) */
+  
+  /* Status Colors */
+  --color-success: #10B981;      /* Emerald 500 */
+  --color-error: #EF4444;        /* Red 500 */
+  --color-warning: #F59E0B;      /* Amber 500 */
+  --color-info: #06B6D4;         /* Cyan 500 */
 
-  --color-bg: #f9fafb;     /* background */
-  --color-surface: #ffffff;/* surface */
-  --color-muted: #6B7280;  /* gray-500 */
-  --color-text: #111827;   /* text */
-  --color-text-muted: #374151;
+  /* Base Colors */
+  --color-bg: #FFF7ED;           /* Orange 50 */
+  --color-surface: #ffffff;      /* White */
+  --color-muted: #94A3B8;        /* Slate 400 */
+  --color-text: #0F172A;         /* Slate 900 */
+  --color-text-muted: #475569;   /* Slate 600 */
 
   /* Gradients */
-  --gradient-header: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(243,244,246,1));
-  --gradient-accent: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(249,250,251,1));
+  /* from-violet-500/15 via-fuchsia-500/10 to-orange-400/10 */
+  --gradient-header: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(217, 70, 239, 0.10), rgba(251, 146, 60, 0.10));
+  /* Accent: Subtle Violet to Transparent/Surface */
+  --gradient-accent: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(255, 255, 255, 0));
 
   /* Typography */
   --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
@@ -55,8 +63,8 @@
   --shadow-lg: 0 10px 24px rgba(0,0,0,0.12);
 
   /* Borders */
-  --border: 1px solid rgba(17,24,39,0.08);
-  --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.35);
+  --border: 1px solid rgba(15, 23, 42, 0.08);
+  --focus-ring: 0 0 0 3px rgba(124, 58, 237, 0.35); /* Violet focus ring */
 
   /* Transition */
   --transition-fast: 150ms ease;
@@ -135,24 +143,24 @@ body {
   border-color: transparent;
 }
 .btn-primary:hover {
-  background: var(--color-primary-500);
+  background: var(--color-primary-600);
 }
 .btn-secondary {
   background: var(--color-secondary);
-  color: #1f2937;
+  color: white; /* White text on Orange 500 for better contrast */
   border-color: transparent;
 }
 .btn-secondary:hover {
   background: var(--color-secondary-600);
-  color: #111827;
+  color: white;
 }
 .btn-ghost {
   background: transparent;
   color: var(--color-primary);
-  border-color: rgba(37,99,235,0.25);
+  border-color: rgba(124, 58, 237, 0.25);
 }
 .btn-ghost:hover {
-  background: rgba(37,99,235,0.08);
+  background: rgba(124, 58, 237, 0.08);
 }
 
 /* Inputs */
@@ -171,7 +179,7 @@ textarea.input {
 .input:hover,
 .select:hover,
 textarea.input:hover {
-  border-color: rgba(17,24,39,0.15);
+  border-color: rgba(15, 23, 42, 0.15);
   box-shadow: var(--shadow-md);
 }
 .input:focus,
@@ -215,19 +223,20 @@ textarea.input:focus {
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
   font-weight: 600;
-  background: rgba(37,99,235,0.08);
+  background: rgba(124, 58, 237, 0.1);
   color: var(--color-primary);
-  border: 1px solid rgba(37,99,235,0.25);
+  border: 1px solid rgba(124, 58, 237, 0.25);
 }
-.badge--amber, .chip--amber {
-  background: rgba(245,158,11,0.12);
-  color: #92400e;
-  border-color: rgba(245,158,11,0.3);
+/* Secondary Badge (Orange) */
+.badge--amber, .chip--amber, .badge--secondary {
+  background: rgba(249, 115, 22, 0.12);
+  color: #c2410c; /* Orange 700 */
+  border-color: rgba(249, 115, 22, 0.3);
 }
 .badge--error {
-  background: rgba(239,68,68,0.12);
-  color: #7f1d1d;
-  border-color: rgba(239,68,68,0.3);
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c; /* Red 700 */
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 /* Tabs */
@@ -252,7 +261,7 @@ textarea.input:focus {
 }
 .tab:hover {
   color: var(--color-text);
-  background: rgba(17,24,39,0.04);
+  background: rgba(15, 23, 42, 0.04);
 }
 .tab.active {
   color: var(--color-primary);
@@ -262,7 +271,7 @@ textarea.input:focus {
 /* Divider */
 .divider {
   height: 1px;
-  background: rgba(17,24,39,0.08);
+  background: rgba(15, 23, 42, 0.08);
   margin: var(--space-4) 0;
 }
 
@@ -270,7 +279,7 @@ textarea.input:focus {
 .progress {
   width: 100%;
   height: 8px;
-  background: rgba(17,24,39,0.06);
+  background: rgba(15, 23, 42, 0.06);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
@@ -305,7 +314,7 @@ textarea.input:focus {
   transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .nav a:hover {
-  background: rgba(37,99,235,0.08);
+  background: rgba(124, 58, 237, 0.08);
   color: var(--color-primary);
 }
 .nav a.active {
@@ -353,7 +362,7 @@ textarea.input:focus {
 .table thead th {
   text-align: left;
   padding: var(--space-3) var(--space-4);
-  background: rgba(17,24,39,0.03);
+  background: rgba(15, 23, 42, 0.03);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
@@ -365,7 +374,7 @@ textarea.input:focus {
 /* Helper text colors */
 .text-muted { color: var(--color-muted); }
 .text-primary { color: var(--color-primary); }
-.text-amber { color: var(--color-secondary); }
+.text-amber { color: var(--color-secondary); } /* Maps to new secondary (Orange) */
 
 /* Spacing helpers */
 .mt-4 { margin-top: var(--space-4); }
@@ -383,8 +392,8 @@ textarea.input:focus {
 
 /* Drag & Drop hover state */
 .dnd-hover {
-  outline: 2px dashed rgba(37,99,235,0.35);
+  outline: 2px dashed rgba(124, 58, 237, 0.35);
   outline-offset: 2px;
-  background: rgba(37,99,235,0.06);
+  background: rgba(124, 58, 237, 0.06);
   transition: background var(--transition-fast), outline-color var(--transition-fast);
 }

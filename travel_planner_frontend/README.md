@@ -2,18 +2,20 @@
 
 This is the React-based UI for Travel Planner Pro.
 
-## Ocean Professional Theme
+## Vibrant Theme
 
-The app uses the Ocean Professional theme with centralized CSS variables and utilities.
+The app uses a Vibrant, colorful theme with centralized CSS variables and utilities.
 
 Palette:
-- Primary: #2563EB
-- Secondary/Amber: #F59E0B
-- Error: #EF4444
-- Background: #f9fafb
-- Surface: #ffffff
-- Text: #111827
-- Gradient: subtle blue to gray tint
+- Primary: #7C3AED (Violet 600)
+- Secondary: #F97316 (Orange 500)
+- Success: #10B981 (Emerald 500)
+- Error: #EF4444 (Red 500)
+- Info: #06B6D4 (Cyan 500)
+- Background: #FFF7ED (Orange 50)
+- Surface: #FFFFFF
+- Text: #0F172A (Slate 900)
+- Gradient: Violet/Fuchsia/Orange blend
 
 Where:
 - Variables and utilities live in src/theme/ocean.css.
