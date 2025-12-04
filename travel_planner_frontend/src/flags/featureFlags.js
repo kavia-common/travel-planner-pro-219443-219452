@@ -16,6 +16,7 @@ export const FEATURE_FLAGS = (() => {
     FEATURE_NOTIFICATIONS: true,
     FEATURE_BUDGET: true,
     FEATURE_EXPLORE: true,
+    ITINERARY_CALENDAR: true,
   };
   return {
     ...defaults,

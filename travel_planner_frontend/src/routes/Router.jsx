@@ -26,6 +26,8 @@ export default function Router() {
       {wizardEnabled && <Route path="/trips/:id/edit" element={<TripWizard />} />}
       <Route path="/trips/:tripId" element={<TripDetails />} />
       <Route path="/calendar" element={<Calendar />} />
+      {/* Optional direct calendar view for a specific trip, reuse TripDetails Calendar tab */}
+      {isEnabled('ITINERARY_CALENDAR') && <Route path="/trips/:tripId/calendar" element={<TripDetails />} />}
       <Route path="/settings" element={<Settings />} />
     </Routes>
   );

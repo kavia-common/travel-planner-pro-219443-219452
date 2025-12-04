@@ -36,6 +36,30 @@ export const ItineraryService = {
   },
 
   // PUBLIC_INTERFACE
+  /** Update only the day/date of an itinerary item */
+  async updateItemDay(tripId, itemId, newDate) {
+    if (!tripId) throw new Error('tripId is required');
+    if (!itemId) throw new Error('itemId is required');
+    if (!newDate) throw new Error('newDate is required');
+    // Prefer PATCH if backend supports; fallback to PUT with partial body accepted
+    const path = `/api/trips/${encodeURIComponent(tripId)}/itinerary/${encodeURIComponent(itemId)}/day`;
+    try {
+      return await base.patch(path, { body: { date: newDate } });
+    } catch {
+      return base.put(
+        `/api/trips/${encodeURIComponent(tripId)}/itinerary/${encodeURIComponent(itemId)}`,
+        { body: { date: newDate } }
+      );
+    }
+  },
+
+  // PUBLIC_INTERFACE
+  /** Alias: list itinerary by trip (same as list) */
+  async listByTrip(tripId) {
+    return this.list(tripId);
+  },
+
+  // PUBLIC_INTERFACE
   /** Remove an itinerary item */
   async remove(tripId, itemId) {
     if (!tripId) throw new Error('tripId is required');

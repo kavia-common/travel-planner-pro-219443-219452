@@ -15,6 +15,7 @@ import ExpenseList from '../components/budget/ExpenseList';
 import ExpenseForm from '../components/budget/ExpenseForm';
 import BudgetChart from '../components/budget/BudgetChart';
 import { isEnabled as isFeatureEnabled, isEnabled } from '../flags/featureFlags';
+const CalendarItineraryLazy = React.lazy(() => import('../components/itinerary/CalendarItinerary'));
 
 /**
  * PUBLIC_INTERFACE
@@ -44,7 +45,13 @@ export default function TripDetails() {
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
 
-  const tabNames = useMemo(() => (budgetEnabled ? ['Itinerary', 'Budget'] : ['Itinerary']), [budgetEnabled]);
+  const calendarEnabled = isFeatureEnabled('ITINERARY_CALENDAR');
+  const tabNames = useMemo(() => {
+    const base = ['Itinerary'];
+    if (calendarEnabled) base.push('Calendar');
+    if (budgetEnabled) base.push('Budget');
+    return base;
+  }, [budgetEnabled, calendarEnabled]);
   const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
@@ -58,8 +65,10 @@ export default function TripDetails() {
   }, [tripId]);
 
   useEffect(() => {
-    if (!budgetEnabled && activeTab !== 0) setActiveTab(0);
-  }, [budgetEnabled, activeTab]);
+    // Ensure activeTab stays within available tabs after flag changes
+    const maxIndex = tabNames.length - 1;
+    if (activeTab > maxIndex) setActiveTab(0);
+  }, [tabNames, activeTab]);
 
   async function handleSubmit(payload) {
     setSubmitting(true);
@@ -182,6 +191,7 @@ export default function TripDetails() {
           ))}
         </div>
 
+        <React.Suspense fallback={<div className="text-muted">Loading view…</div>}>
         {/* Itinerary Panel */}
         {activeTab === 0 && (
           <div role="tabpanel" id="panel-0" aria-labelledby="tab-0">
@@ -204,8 +214,18 @@ export default function TripDetails() {
           </div>
         )}
 
+        {/* Calendar Panel */}
+        {calendarEnabled && activeTab === (budgetEnabled ? 1 : 1) && (
+          <div role="tabpanel" id={`panel-${budgetEnabled ? 1 : 1}`} aria-labelledby={`tab-${budgetEnabled ? 1 : 1}`}>
+            <div style={{ overflowX: 'auto' }}>
+              {/* Lazy import to avoid adding dnd-kit to main bundle until needed */}
+              <CalendarItineraryLazy tripId={tripId} />
+            </div>
+          </div>
+        )}
+
         {/* Budget Panel */}
-        {budgetEnabled && activeTab === 1 && (
+        {budgetEnabled && activeTab === (calendarEnabled ? 2 : 1) && (
           <div role="tabpanel" id="panel-1" aria-labelledby="tab-1">
             <div style={{ display: 'grid', gap: 12 }}>
               <BudgetSummary totals={budget.totals} onEditBudget={handleEditBudget} />
@@ -233,6 +253,7 @@ export default function TripDetails() {
             />
           </div>
         )}
+        </React.Suspense>
       </Card>
 
       {/* Existing itinerary modal */}

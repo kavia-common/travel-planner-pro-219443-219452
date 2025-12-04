@@ -144,12 +144,29 @@ npm run build
 - Components: src/components/
   - common/: Button, Card, Header, Modal, Sidebar, Toast
   - trips/: TripForm, TripList, TripListItem
-  - itinerary/: ItineraryForm, ItineraryItem, ItineraryView
+  - itinerary/: ItineraryForm, ItineraryItem, ItineraryView, CalendarItinerary (drag-and-drop)
   - budget/: BudgetSummary, ExpenseList, ExpenseForm, BudgetChart
   - calendar/: CalendarView
 - Pages: src/pages/
   - Dashboard, Trips, TripDetails, Calendar, Settings
 - Theme and Utilities: src/styles/theme.css and src/styles/util.css
+
+### Itinerary Calendar (Drag-and-Drop)
+- Feature flag: ITINERARY_CALENDAR (default enabled). Disable by setting REACT_APP_FEATURE_FLAGS={"ITINERARY_CALENDAR":false}.
+- Where: Trip Details page shows a "Calendar" tab when enabled.
+- What: Columns per day between trip start/end dates; drag items between days to change their date; reorder within a day.
+- UX: Responsive Ocean Professional styling, clear empty state (“Drop items here”), loading and error messages.
+- Endpoints expected:
+  - GET /api/trips/:tripId/itinerary
+  - PUT /api/trips/:tripId/itinerary/:itemId accepts partial body { date }
+  - Optional PATCH /api/trips/:tripId/itinerary/:itemId/day with { date } if backend supports
+- Service APIs:
+  - ItineraryService.listByTrip(tripId) -> alias of list
+  - ItineraryService.updateItemDay(tripId, itemId, newDate) -> falls back to update(...,{ date })
+- Routes:
+  - /trips/:tripId -> Calendar tab inside Trip Details
+  - /trips/:tripId/calendar -> optional alias route (renders Trip Details with Calendar tab)
+  - /calendar -> general calendar page (non-DnD overview)
 
 ## Feature Flags
 
