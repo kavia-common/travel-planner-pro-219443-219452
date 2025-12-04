@@ -1,24 +1,121 @@
 //
-// Feature flags/exflags utility
-// Parses REACT_APP_FEATURE_FLAGS and REACT_APP_EXPERIMENTS_ENABLED and exposes helpers.
+//
+// Feature flags utility (env + client-side overrides)
+//
+// - Parses flags from env via src/config/env.js (REACT_APP_FEATURE_FLAGS)
+// - Supports a client-side-only override layer (for demos) when experiments are enabled
+// - Overrides are stored in localStorage under key "ff_overrides"
+//
+// Public helpers:
+//  - isEnabled(flag): boolean (merged env + overrides)
+//  - getFlag(flag, defaultValue): string | defaultValue (merged env + overrides)
+//  - experimentsOn(): boolean (from REACT_APP_EXPERIMENTS_ENABLED)
+//  - allFlags(): snapshot { flags, values, experimentsEnabled, raw, overrides }
+//  - setOverride(flag, value): set boolean|string override; pass null to clear
+//  - clearOverride(flag): remove a specific override
+//  - clearAllOverrides(): remove all overrides
+//  - refreshOverrides(): recompute merged snapshot
 //
 
 import { env } from '../config/env';
 
-const { set: flagSet, map: flagMap } = env.parsedFlags;
+const LS_KEY = 'ff_overrides';
+
+function readOverrides() {
+  try {
+    const raw = window.localStorage.getItem(LS_KEY);
+    if (!raw) return {};
+    const obj = JSON.parse(raw);
+    return obj && typeof obj === 'object' ? obj : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeOverrides(obj) {
+  try {
+    if (!obj || Object.keys(obj).length === 0) {
+      window.localStorage.removeItem(LS_KEY);
+      return;
+    }
+    window.localStorage.setItem(LS_KEY, JSON.stringify(obj));
+  } catch {
+    // ignore storage write failures
+  }
+}
+
+// Merge env-parsed flags with overrides
+function computeMerged() {
+  const baseSet = new Set(env.parsedFlags.set);
+  const baseMap = new Map(env.parsedFlags.map);
+  const overrides = readOverrides();
+
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value === null || value === undefined) {
+      continue;
+    }
+    if (typeof value === 'boolean') {
+      if (value) baseSet.add(key);
+      else baseSet.delete(key);
+    } else {
+      const str = String(value);
+      baseMap.set(key, str);
+      const truthy = ['1', 'true', 'yes', 'on', 'enabled'].includes(str.toLowerCase());
+      if (truthy) baseSet.add(key);
+    }
+  }
+
+  return { set: baseSet, map: baseMap, overrides };
+}
+
+let merged = computeMerged();
+
+// PUBLIC_INTERFACE
+export function refreshOverrides() {
+  /** Recompute merged flags from env + local overrides and return snapshot. */
+  merged = computeMerged();
+  return allFlags();
+}
+
+// PUBLIC_INTERFACE
+export function setOverride(flag, value) {
+  /** Set a local override (client-only). Pass boolean or string; pass null/undefined to clear. */
+  if (!flag) return;
+  const current = readOverrides();
+  if (value === null || value === undefined) {
+    delete current[flag];
+  } else {
+    current[flag] = value;
+  }
+  writeOverrides(current);
+  refreshOverrides();
+}
+
+// PUBLIC_INTERFACE
+export function clearOverride(flag) {
+  /** Clear a specific flag override. */
+  setOverride(flag, null);
+}
+
+// PUBLIC_INTERFACE
+export function clearAllOverrides() {
+  /** Remove all overrides. */
+  writeOverrides({});
+  refreshOverrides();
+}
 
 // PUBLIC_INTERFACE
 export function isEnabled(flag) {
-  /** Returns true if a boolean feature flag is enabled. */
+  /** Returns true if a boolean feature flag is enabled (merged env + overrides). */
   if (!flag) return false;
-  return flagSet.has(flag);
+  return merged.set.has(flag);
 }
 
 // PUBLIC_INTERFACE
 export function getFlag(flag, defaultValue = undefined) {
-  /** Returns a string value for a feature flag key=value pair, or defaultValue if not present. */
+  /** Get a flag's string value from merged map or defaultValue. */
   if (!flag) return defaultValue;
-  if (flagMap.has(flag)) return flagMap.get(flag);
+  if (merged.map.has(flag)) return merged.map.get(flag);
   return defaultValue;
 }
 
@@ -30,12 +127,13 @@ export function experimentsOn() {
 
 // PUBLIC_INTERFACE
 export function allFlags() {
-  /** Returns a snapshot of flag set and map for debugging/inspection purposes. */
+  /** Returns a snapshot of merged flags and values for inspection/debug. */
   return {
-    flags: Array.from(flagSet),
-    values: Object.fromEntries(flagMap.entries()),
+    flags: Array.from(merged.set),
+    values: Object.fromEntries(merged.map.entries()),
     experimentsEnabled: env.experimentsEnabled,
     raw: env.rawFeatureFlags,
+    overrides: { ...merged.overrides },
   };
 }
 
@@ -44,4 +142,8 @@ export default {
   getFlag,
   experimentsOn,
   allFlags,
+  setOverride,
+  clearOverride,
+  clearAllOverrides,
+  refreshOverrides,
 };
