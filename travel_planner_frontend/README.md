@@ -205,10 +205,36 @@ function EnvBadge() {
 npm test
 ```
 
-CI-mode tip:
+CI mode:
+- Use the dedicated CI script to run tests once and exit (no watch, with CI env):
 ```bash
-CI=true npm test -- --watchAll=false
+npm run test:ci
 ```
+
+### Manual Performance Checks (no extra tooling)
+
+1) Lighthouse Audits (in Chrome/Edge)
+- Start the app: npm start
+- Open the app in Chrome/Edge (e.g., http://localhost:3000)
+- Open DevTools > Lighthouse (or use the Chrome Lighthouse panel)
+- Select categories (Performance, Accessibility, Best Practices, SEO)
+- Choose Device: Mobile or Desktop
+- Click “Analyze page load”
+- Review metrics (LCP, CLS, TBT, etc.) and opportunities. Repeat after changes.
+
+2) Bundle Size via CRA Build Output
+- Run a production build:
+```bash
+npm run build
+```
+- CRA prints gzipped bundle sizes after the build completes. Review the “File sizes after gzip” section in the terminal output to track main bundle, vendor chunks, and route/component chunks.
+- The build artifacts are in the build/ folder. You can also inspect build/static/js for per-chunk sizes and build/static/css for styles.
+
+Tips to keep bundles lean (no new dependencies required):
+- Prefer code splitting for large, rarely used pages/components using React.lazy and dynamic import().
+- Avoid unnecessary re-exports that force large dependency graphs to load eagerly.
+- Keep images and assets optimized; prefer modern formats where possible.
+- Ensure dead code is removed by guarding feature code paths with flags and environment checks.
 
 ## .env Quickstart
 
