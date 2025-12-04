@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Modal from '../components/common/Modal';
@@ -14,7 +14,7 @@ import BudgetSummary from '../components/budget/BudgetSummary';
 import ExpenseList from '../components/budget/ExpenseList';
 import ExpenseForm from '../components/budget/ExpenseForm';
 import BudgetChart from '../components/budget/BudgetChart';
-import { isEnabled as isFeatureEnabled } from '../flags/featureFlags';
+import { isEnabled as isFeatureEnabled, isEnabled } from '../flags/featureFlags';
 
 /**
  * PUBLIC_INTERFACE
@@ -22,6 +22,7 @@ import { isEnabled as isFeatureEnabled } from '../flags/featureFlags';
  */
 export default function TripDetails() {
   const { tripId } = useParams();
+  const navigate = useNavigate();
 
   // Itinerary integration (existing behavior)
   const { items, loading, error, loadItinerary, addItem, updateItem, removeItem } = useItinerary(tripId);
@@ -36,6 +37,7 @@ export default function TripDetails() {
 
   // Feature flag and budget integration
   const budgetEnabled = isFeatureEnabled('FEATURE_BUDGET');
+  const wizardEnabled = isEnabled('TRIP_WIZARD');
   const [toasts, setToasts] = useState([]);
   const pushToast = (t) => setToasts((prev) => [...prev, { id: Date.now() + Math.random(), ...t }]);
   const budget = useBudget(tripId, { onToast: pushToast });
@@ -145,15 +147,16 @@ export default function TripDetails() {
         title="Trip Details"
         subtitle={`Trip ID: ${tripId}`}
         footer={
-          activeTab === 0 ? (
-            <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {activeTab === 0 ? (
               <Button variant="primary" onClick={() => { setEditing(null); setOpen(true); }}>Add Itinerary Item</Button>
-            </div>
-          ) : budgetEnabled ? (
-            <div style={{ display: 'flex', gap: 8 }}>
+            ) : budgetEnabled ? (
               <Button variant="primary" onClick={onAddExpenseClick}>Add Expense</Button>
-            </div>
-          ) : null
+            ) : null}
+            {wizardEnabled && (
+              <Button variant="ghost" onClick={() => navigate(`/trips/${tripId}/edit`)}>Edit Trip</Button>
+            )}
+          </div>
         }
       >
         {/* Tabs */}

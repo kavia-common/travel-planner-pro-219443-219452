@@ -1,19 +1,6 @@
-@import url('./styles/theme.css');
-@import url('./styles/util.css');
+@import './components/trips/TripWizard/wizard.css';
 
-body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Oxygen',
-  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-  sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: var(--color-background);
-  color: var(--color-text);
-  transition: var(--transition-base);
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+/* baseline index styles (keep minimal to avoid conflicts) */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { margin: 0; }

@@ -1,4 +1,14 @@
-# Travel Planner Frontend (React)
+# Travel Planner Frontend
+
+## Trip Wizard Feature Flag
+
+The Trip Wizard is gated behind TRIP_WIZARD. By default it is enabled.
+
+To disable:
+- Set REACT_APP_FEATURE_FLAGS to: {"TRIP_WIZARD": false}
+
+Environment example:
+REACT_APP_FEATURE_FLAGS={"TRIP_WIZARD":true} (React)
 
 A modern React frontend for Travel Planner Pro. It provides a dashboard, trips management, itinerary editing, and a calendar view, with optional live updates over WebSockets and a minimal global state store.
 

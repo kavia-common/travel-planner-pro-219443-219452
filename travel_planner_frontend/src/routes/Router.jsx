@@ -6,21 +6,24 @@ import TripDetails from '../pages/TripDetails';
 import Calendar from '../pages/Calendar';
 import Settings from '../pages/Settings';
 import Explore from '../pages/Explore';
+import TripWizard from '../components/trips/TripWizard/TripWizard';
 import { isEnabled } from '../flags/featureFlags';
 
 const FEATURE_EXPLORE = 'FEATURE_EXPLORE';
 
-/**
- * PUBLIC_INTERFACE
- * Router centralizes all application routes. Useful for code-splitting or nested layouts later.
- */
+// PUBLIC_INTERFACE
 export default function Router() {
+  /** Router centralizes all application routes and applies feature gating. */
   const showExplore = isEnabled(FEATURE_EXPLORE);
+  const wizardEnabled = isEnabled('TRIP_WIZARD');
+
   return (
     <Routes>
       <Route path="/" element={<Dashboard />} />
       {showExplore && <Route path="/explore" element={<Explore />} />}
       <Route path="/trips" element={<Trips />} />
+      {wizardEnabled && <Route path="/trips/new" element={<TripWizard />} />}
+      {wizardEnabled && <Route path="/trips/:id/edit" element={<TripWizard />} />}
       <Route path="/trips/:tripId" element={<TripDetails />} />
       <Route path="/calendar" element={<Calendar />} />
       <Route path="/settings" element={<Settings />} />

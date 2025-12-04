@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Modal from '../components/common/Modal';
@@ -7,6 +7,7 @@ import TripList from '../components/trips/TripList';
 import TripForm from '../components/trips/TripForm';
 import { useTrips } from '../hooks/useTrips';
 import { useToast } from '../components/common/Toast';
+import { isEnabled } from '../flags/featureFlags';
 
 /**
  * PUBLIC_INTERFACE
@@ -18,9 +19,11 @@ export default function Trips() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const wizardEnabled = isEnabled('TRIP_WIZARD');
 
   useEffect(() => {
-    loadTrips().catch((e) => {
+    loadTrips().catch(() => {
       errorToast('Failed to load trips');
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,7 +53,6 @@ export default function Trips() {
 
   async function handleDelete(trip) {
     if (!trip) return;
-    // Confirmation dialog
     const ok = window.confirm(`Remove trip "${trip.name || trip.title || trip.id}"? This cannot be undone.`);
     if (!ok) return;
     try {
@@ -68,7 +70,11 @@ export default function Trips() {
         subtitle="All your journeys in one place"
         footer={
           <div style={{ display: 'flex', gap: 8 }}>
-            <Button variant="primary" onClick={() => { setEditing(null); setOpen(true); }}>Create Trip</Button>
+            {wizardEnabled ? (
+              <Button variant="primary" onClick={() => navigate('/trips/new')}>New Trip</Button>
+            ) : (
+              <Button variant="primary" onClick={() => { setEditing(null); setOpen(true); }}>Create Trip</Button>
+            )}
             <Button variant="ghost">Import</Button>
           </div>
         }
@@ -82,13 +88,13 @@ export default function Trips() {
         {!loading && !error && trips.length === 0 && (
           <div className="text-muted" aria-live="polite" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <img src="/assets/empty-travel.png" alt="" aria-hidden style={{ width: 28, height: 28, opacity: 0.9 }} />
-            No trips yet. Use the Create Trip action to add your first itinerary.
+            No trips yet. Use the {wizardEnabled ? 'New Trip' : 'Create Trip'} action to add your first itinerary.
           </div>
         )}
         {!loading && !error && trips.length > 0 && (
           <TripList
             trips={trips}
-            onView={(t) => {}}
+            onView={(t) => navigate(`/trips/${t.id}`)}
             onEdit={(t) => { setEditing(t); setOpen(true); }}
             onDelete={handleDelete}
           />
