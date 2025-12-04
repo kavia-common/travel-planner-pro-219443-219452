@@ -14,6 +14,7 @@ const Trips = lazy(() => import('./pages/Trips'));
 const TripDetails = lazy(() => import('./pages/TripDetails'));
 const Calendar = lazy(() => import('./pages/Calendar'));
 const Settings = lazy(() => import('./pages/Settings'));
+const SearchResults = lazy(() => import('./pages/SearchResults'));
 
 function EnvBadge() {
   if (env.isProd) return null;
@@ -67,6 +68,7 @@ function App() {
                 <Route path="/trips/:tripId" element={<TripDetails />} />
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/search" element={<SearchResults />} />
                 {/* Fallback: simple home placeholder (should rarely hit) */}
                 <Route
                   path="*"

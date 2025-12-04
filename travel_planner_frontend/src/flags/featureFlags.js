@@ -46,6 +46,8 @@ export const FEATURE_FLAGS = (() => {
     REMINDERS: true,
     BROWSER_NOTIFICATIONS: true,
     TIMELINE_MAP: true,
+    // Global Search feature flag (default true)
+    GLOBAL_SEARCH: true,
   };
 
   // Merge with overrides from sessionStorage (if any)

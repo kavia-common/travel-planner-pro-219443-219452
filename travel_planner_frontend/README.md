@@ -204,6 +204,25 @@ REACT_APP_EXCHANGE_RATES_URL=https://api.exchangerate.host/latest
 REACT_APP_EXCHANGE_RATES_API_KEY=
 ```
 
+## Global Search
+
+The app includes a Global Search feature (command-palette style) with:
+- Header search bar with keyboard shortcuts: "/" to focus, Cmd/Ctrl+K to open.
+- Modal with grouped results (Trips, Itinerary, Places, Packing, Budget) and keyboard navigation (Up/Down/Enter/Escape).
+- Full results page at /search?q= with filter chips and pagination.
+
+Routing:
+- /search -> full results page
+
+Feature flag:
+- GLOBAL_SEARCH (default: true). Configure via src/flags/featureFlags.js or REACT_APP_FEATURE_FLAGS.
+
+Works with or without backend endpoints:
+- Uses HTTP-first if endpoints are available; seamless localStorage fallbacks from existing services otherwise.
+
+Styling:
+- Ocean Professional theme with soft shadows, rounded corners, and subtle transitions.
+
 ## Development
 
 - npm start
