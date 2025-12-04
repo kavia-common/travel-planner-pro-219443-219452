@@ -19,7 +19,14 @@ import { isEnabled } from '../flags/featureFlags';
 
 // Connection gating via env + flag
 const WS_URL = env.wsBase;
-const LIVE_ENABLED = isEnabled('liveUpdates');
+// Evaluate the liveUpdates flag dynamically so client-side overrides in Settings and tests reflect immediately
+function liveEnabled() {
+  try {
+    return isEnabled('liveUpdates');
+  } catch {
+    return false;
+  }
+}
 
 const subscribers = new Map(); // topic -> Set<handler>
 let ws = null;
@@ -80,7 +87,7 @@ function scheduleReconnect() {
 
 function connectInternal() {
   if (!shouldRun || connecting || ws?.readyState === WebSocket.OPEN) return;
-  if (!WS_URL || !LIVE_ENABLED) return;
+  if (!WS_URL || !liveEnabled()) return;
   const url = normalizeWsUrl(WS_URL);
   if (!url) return;
   connecting = true;
@@ -128,7 +135,7 @@ function connectInternal() {
 export function start() {
   /** Start the optional WebSocket client if enabled via env+flag. */
   shouldRun = true;
-  if (WS_URL && LIVE_ENABLED) {
+  if (WS_URL && liveEnabled()) {
     connectInternal();
   }
 }
@@ -187,5 +194,5 @@ export function send(obj) {
 }
 
 // Expose quick helpers
-const wsClient = { start, stop, subscribe, send, enabled: () => !!(WS_URL && LIVE_ENABLED) };
+const wsClient = { start, stop, subscribe, send, enabled: () => !!(WS_URL && liveEnabled()) };
 export default wsClient;
