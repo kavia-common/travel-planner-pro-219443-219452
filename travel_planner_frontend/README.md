@@ -77,7 +77,7 @@ REACT_APP_HEALTHCHECK_PATH=/health
 # Feature flags
 # boolean flags: "flagA,flagB"
 # key=value flags: "flagC=on,flagD=v2", "flagE=true"
-REACT_APP_FEATURE_FLAGS=liveUpdates,FEATURE_BUDGET,theme=dark
+REACT_APP_FEATURE_FLAGS=liveUpdates,FEATURE_BUDGET,PACKING_LIST,theme=dark
 REACT_APP_EXPERIMENTS_ENABLED=false
 
 # Disable Next telemetry semantics (kept for parity/library usage)
@@ -167,6 +167,32 @@ npm run build
   - /trips/:tripId -> Calendar tab inside Trip Details
   - /trips/:tripId/calendar -> optional alias route (renders Trip Details with Calendar tab)
   - /calendar -> general calendar page (non-DnD overview)
+
+## Feature: Packing List (feature flagged)
+
+A categorized packing list with per-category and overall progress for each trip.
+
+- Enable/disable via feature flag: PACKING_LIST (default: enabled)
+- Data model:
+  - Categories: defaults to [Essentials, Clothing, Toiletries, Electronics, Documents, Health, Misc]
+  - Items: { id, name, quantity, notes, packed, category }
+- Persistence:
+  - HTTP-first against: 
+    - GET /trips/:tripId/packing
+    - POST /trips/:tripId/packing/items
+    - PUT /trips/:tripId/packing/items/:itemId
+    - DELETE /trips/:tripId/packing/items/:itemId
+    - POST /trips/:tripId/packing/categories
+    - DELETE /trips/:tripId/packing/categories/:name
+  - Fallback to localStorage if the backend is unavailable; state is keyed by tripId
+
+Usage:
+- Navigate to Trip Details. A new "Packing" tab appears when PACKING_LIST is enabled.
+- Add items quickly with Enter, adjust quantity with +/- steppers, set notes, reassign categories, and remove items.
+- Progress bars show packed/total per category and overall progress.
+
+Environment example to disable:
+- REACT_APP_FEATURE_FLAGS={"PACKING_LIST": false}
 
 ## Feature Flags
 

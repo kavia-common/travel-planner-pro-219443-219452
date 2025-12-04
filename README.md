@@ -8,6 +8,14 @@ A web application that helps users plan their trips, organize itineraries, and m
   - React-based web UI
   - See travel_planner_frontend/README.md for full setup, environment variables, architecture, and development instructions.
 
+## New: Packing List (feature flagged)
+
+The frontend includes a categorized Packing List with per-category and overall progress.
+
+- Feature flag: PACKING_LIST (default enabled)
+- Fallback: persists to localStorage when backend endpoints are not available
+- Integrated into Trip Details as a "Packing" tab
+
 ## New: Budget Planner (feature flagged)
 
 The frontend now includes a Budget Planner in the Trip Details page that lets users:

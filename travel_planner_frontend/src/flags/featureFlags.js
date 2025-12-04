@@ -17,6 +17,7 @@ export const FEATURE_FLAGS = (() => {
     FEATURE_BUDGET: true,
     FEATURE_EXPLORE: true,
     ITINERARY_CALENDAR: true,
+    PACKING_LIST: true,
   };
   return {
     ...defaults,

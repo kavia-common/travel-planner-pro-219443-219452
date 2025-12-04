@@ -16,6 +16,7 @@ import ExpenseForm from '../components/budget/ExpenseForm';
 import BudgetChart from '../components/budget/BudgetChart';
 import { isEnabled as isFeatureEnabled, isEnabled } from '../flags/featureFlags';
 const CalendarItineraryLazy = React.lazy(() => import('../components/itinerary/CalendarItinerary'));
+const PackingListLazy = React.lazy(() => import('../components/packing/PackingList'));
 
 /**
  * PUBLIC_INTERFACE
@@ -46,12 +47,14 @@ export default function TripDetails() {
   const [editingExpense, setEditingExpense] = useState(null);
 
   const calendarEnabled = isFeatureEnabled('ITINERARY_CALENDAR');
+  const packingEnabled = isFeatureEnabled('PACKING_LIST');
   const tabNames = useMemo(() => {
     const base = ['Itinerary'];
     if (calendarEnabled) base.push('Calendar');
     if (budgetEnabled) base.push('Budget');
+    if (packingEnabled) base.push('Packing');
     return base;
-  }, [budgetEnabled, calendarEnabled]);
+  }, [budgetEnabled, calendarEnabled, packingEnabled]);
   const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
@@ -159,7 +162,7 @@ export default function TripDetails() {
           <div style={{ display: 'flex', gap: 8 }}>
             {activeTab === 0 ? (
               <Button variant="primary" onClick={() => { setEditing(null); setOpen(true); }}>Add Itinerary Item</Button>
-            ) : budgetEnabled ? (
+            ) : budgetEnabled && tabNames[activeTab] === 'Budget' ? (
               <Button variant="primary" onClick={onAddExpenseClick}>Add Expense</Button>
             ) : null}
             {wizardEnabled && (
@@ -251,6 +254,13 @@ export default function TripDetails() {
               onSubmit={onSubmitExpense}
               initialValue={editingExpense}
             />
+          </div>
+        )}
+
+        {/* Packing Panel */}
+        {packingEnabled && activeTab === (calendarEnabled && budgetEnabled ? 3 : (calendarEnabled || budgetEnabled ? 2 : 1)) && (
+          <div role="tabpanel" id="panel-packing" aria-labelledby={`tab-${activeTab}`}>
+            <PackingListLazy tripId={tripId} />
           </div>
         )}
         </React.Suspense>
