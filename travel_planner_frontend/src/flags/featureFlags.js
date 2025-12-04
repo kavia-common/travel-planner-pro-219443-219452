@@ -1,29 +1,10 @@
-//
-//
-// Feature flags utility (env + client-side overrides)
-//
-// - Parses flags from env via src/config/env.js (REACT_APP_FEATURE_FLAGS)
-// - Supports a client-side-only override layer (for demos) when experiments are enabled
-// - Overrides are stored in localStorage under key "ff_overrides"
-//
-// Public helpers:
-//  - isEnabled(flag): boolean (merged env + overrides)
-//  - getFlag(flag, defaultValue): string | defaultValue (merged env + overrides)
-//  - experimentsOn(): boolean (from REACT_APP_EXPERIMENTS_ENABLED)
-//  - allFlags(): snapshot { flags, values, experimentsEnabled, raw, overrides }
-//  - setOverride(flag, value): set boolean|string override; pass null to clear
-//  - clearOverride(flag): remove a specific override
-//  - clearAllOverrides(): remove all overrides
-//  - refreshOverrides(): recompute merged snapshot
-//
-
 import { env } from '../config/env';
 
 const LS_KEY = 'ff_overrides';
 
 function readOverrides() {
   try {
-    const raw = window.localStorage.getItem(LS_KEY);
+    const raw = typeof window !== 'undefined' ? window.localStorage.getItem(LS_KEY) : null;
     if (!raw) return {};
     const obj = JSON.parse(raw);
     return obj && typeof obj === 'object' ? obj : {};
@@ -34,6 +15,7 @@ function readOverrides() {
 
 function writeOverrides(obj) {
   try {
+    if (typeof window === 'undefined') return;
     if (!obj || Object.keys(obj).length === 0) {
       window.localStorage.removeItem(LS_KEY);
       return;
@@ -51,9 +33,7 @@ function computeMerged() {
   const overrides = readOverrides();
 
   for (const [key, value] of Object.entries(overrides)) {
-    if (value === null || value === undefined) {
-      continue;
-    }
+    if (value === null || value === undefined) continue;
     if (typeof value === 'boolean') {
       if (value) baseSet.add(key);
       else baseSet.delete(key);
@@ -137,8 +117,15 @@ export function allFlags() {
   };
 }
 
+// PUBLIC_INTERFACE
+export const FEATURE_BUDGET = 'FEATURE_BUDGET';
+
+// PUBLIC_INTERFACE
+export const isFeatureEnabled = isEnabled;
+
 export default {
   isEnabled,
+  isFeatureEnabled,
   getFlag,
   experimentsOn,
   allFlags,
@@ -146,4 +133,5 @@ export default {
   clearOverride,
   clearAllOverrides,
   refreshOverrides,
+  FEATURE_BUDGET,
 };

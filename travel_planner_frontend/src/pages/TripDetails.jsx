@@ -9,36 +9,60 @@ import { useItinerary } from '../hooks/useItinerary';
 import { useTrips } from '../hooks/useTrips';
 import { useToast } from '../components/common/Toast';
 
+import useBudget from '../hooks/useBudget';
+import BudgetSummary from '../components/budget/BudgetSummary';
+import ExpenseList from '../components/budget/ExpenseList';
+import ExpenseForm from '../components/budget/ExpenseForm';
+import BudgetChart from '../components/budget/BudgetChart';
+import { isEnabled as isFeatureEnabled } from '../flags/featureFlags';
+
 /**
  * PUBLIC_INTERFACE
- * TripDetails page: displays details for a specific trip with itinerary listing.
+ * TripDetails page: displays details for a specific trip with itinerary listing and optional Budget Planner tab (FEATURE_BUDGET).
  */
 export default function TripDetails() {
   const { tripId } = useParams();
+
+  // Itinerary integration (existing behavior)
   const { items, loading, error, loadItinerary, addItem, updateItem, removeItem } = useItinerary(tripId);
   const { getTrip, selectTrip } = useTrips();
   const { success, error: errorToast, info } = useToast();
 
+  // Local state for itinerary modal
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const describedId = useMemo(() => 'itin-modal-desc', []);
 
+  // Feature flag and budget integration
+  const budgetEnabled = isFeatureEnabled('FEATURE_BUDGET');
+  const [toasts, setToasts] = useState([]);
+  const pushToast = (t) => setToasts((prev) => [...prev, { id: Date.now() + Math.random(), ...t }]);
+  const budget = useBudget(tripId, { onToast: pushToast });
+  const [expenseModalOpen, setExpenseModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null);
+
+  const tabNames = useMemo(() => (budgetEnabled ? ['Itinerary', 'Budget'] : ['Itinerary']), [budgetEnabled]);
+  const [activeTab, setActiveTab] = useState(0);
+
   useEffect(() => {
+    // Initial load for itinerary and trip selection
     selectTrip(tripId);
-    // try to hydrate trip info into store (no-op if fails)
     getTrip(tripId).catch(() => {});
-    loadItinerary().catch((e) => {
+    loadItinerary().catch(() => {
       errorToast('Failed to load itinerary');
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId]);
 
+  useEffect(() => {
+    if (!budgetEnabled && activeTab !== 0) setActiveTab(0);
+  }, [budgetEnabled, activeTab]);
+
   async function handleSubmit(payload) {
     setSubmitting(true);
     try {
       if (editing?.id) {
-        // optimistic update: handled in hook; if error occurs, reload to rollback state
         await updateItem(editing.id, payload);
         success('Itinerary updated');
       } else {
@@ -49,7 +73,6 @@ export default function TripDetails() {
       setEditing(null);
     } catch (e) {
       errorToast('Unable to save itinerary item');
-      // best-effort refresh
       loadItinerary().catch(() => {});
     } finally {
       setSubmitting(false);
@@ -65,10 +88,56 @@ export default function TripDetails() {
       info('Item removed');
     } catch (e) {
       errorToast('Failed to remove item');
-      // refresh to correct any partial UI inconsistencies
       loadItinerary().catch(() => {});
     }
   }
+
+  // Budget handlers
+  const onAddExpenseClick = () => {
+    setEditingExpense(null);
+    setExpenseModalOpen(true);
+  };
+
+  const onEditExpense = (item) => {
+    setEditingExpense(item);
+    setExpenseModalOpen(true);
+  };
+
+  const onSubmitExpense = async (payload) => {
+    try {
+      if (editingExpense?.id) {
+        await budget.editExpense(editingExpense.id, payload);
+      } else {
+        await budget.addExpense(payload);
+      }
+      setExpenseModalOpen(false);
+    } catch {
+      // hook toasts already show error
+    }
+  };
+
+  const handleDeleteExpense = async (item) => {
+    try {
+      await budget.removeExpense(item.id);
+    } catch {
+      // hook toasts already show error
+    }
+  };
+
+  const handleEditBudget = async () => {
+    const next = window.prompt('Enter new budget target amount', String(budget.totals?.target ?? 0));
+    if (next == null) return;
+    const num = Number(next);
+    if (Number.isNaN(num) || num < 0) {
+      pushToast({ type: 'error', message: 'Please enter a valid non-negative number' });
+      return;
+    }
+    try {
+      await budget.setBudgetTarget(num);
+    } catch {
+      // hook toast
+    }
+  };
 
   return (
     <>
@@ -76,29 +145,94 @@ export default function TripDetails() {
         title="Trip Details"
         subtitle={`Trip ID: ${tripId}`}
         footer={
-          <div style={{ display: 'flex', gap: 8 }}>
-            <Button variant="primary" onClick={() => { setEditing(null); setOpen(true); }}>Add Itinerary Item</Button>
-          </div>
+          activeTab === 0 ? (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Button variant="primary" onClick={() => { setEditing(null); setOpen(true); }}>Add Itinerary Item</Button>
+            </div>
+          ) : budgetEnabled ? (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Button variant="primary" onClick={onAddExpenseClick}>Add Expense</Button>
+            </div>
+          ) : null
         }
       >
-        {loading && <div className="text-muted" aria-live="polite">Loading itinerary…</div>}
-        {!!error && (
-          <div className="text-muted" role="alert" style={{ color: 'var(--color-error)' }}>
-            Failed to load itinerary. Please try again.
+        {/* Tabs */}
+        <div role="tablist" aria-label="Trip sections" style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          {tabNames.map((name, idx) => (
+            <button
+              key={name}
+              role="tab"
+              aria-selected={activeTab === idx}
+              aria-controls={`panel-${idx}`}
+              id={`tab-${idx}`}
+              onClick={() => setActiveTab(idx)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: 8,
+                border: activeTab === idx ? '2px solid var(--primary, #2563EB)' : '1px solid rgba(17,24,39,0.12)',
+                background: activeTab === idx ? 'var(--surface)' : 'var(--background)',
+                cursor: 'pointer',
+              }}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+
+        {/* Itinerary Panel */}
+        {activeTab === 0 && (
+          <div role="tabpanel" id="panel-0" aria-labelledby="tab-0">
+            {loading && <div className="text-muted" aria-live="polite">Loading itinerary…</div>}
+            {!!error && (
+              <div className="text-muted" role="alert" style={{ color: 'var(--color-error)' }}>
+                Failed to load itinerary. Please try again.
+              </div>
+            )}
+            {!loading && !error && items.length === 0 && (
+              <div className="text-muted" aria-live="polite">No itinerary items yet. Add your first activity.</div>
+            )}
+            {!loading && !error && items.length > 0 && (
+              <ItineraryView
+                items={items}
+                onEdit={(it) => { setEditing(it); setOpen(true); }}
+                onRemove={handleRemove}
+              />
+            )}
           </div>
         )}
-        {!loading && !error && items.length === 0 && (
-          <div className="text-muted" aria-live="polite">No itinerary items yet. Add your first activity.</div>
-        )}
-        {!loading && !error && items.length > 0 && (
-          <ItineraryView
-            items={items}
-            onEdit={(it) => { setEditing(it); setOpen(true); }}
-            onRemove={handleRemove}
-          />
+
+        {/* Budget Panel */}
+        {budgetEnabled && activeTab === 1 && (
+          <div role="tabpanel" id="panel-1" aria-labelledby="tab-1">
+            <div style={{ display: 'grid', gap: 12 }}>
+              <BudgetSummary totals={budget.totals} onEditBudget={handleEditBudget} />
+              <div style={{ background: 'var(--surface)', borderRadius: 12, border: '1px solid rgba(17,24,39,0.08)', padding: 12 }}>
+                {budget.loading ? (
+                  <p>Loading budget...</p>
+                ) : budget.error ? (
+                  <p role="alert" style={{ color: '#EF4444' }}>Failed to load budget data.</p>
+                ) : (
+                  <>
+                    <ExpenseList items={budget.expenses} onEdit={onEditExpense} onDelete={handleDeleteExpense} />
+                    <div style={{ marginTop: 12 }}>
+                      <BudgetChart breakdown={budget.totals?.breakdown || []} currency={budget.totals?.currency} />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <ExpenseForm
+              open={expenseModalOpen}
+              onClose={() => setExpenseModalOpen(false)}
+              onSubmit={onSubmitExpense}
+              initialValue={editingExpense}
+            />
+          </div>
         )}
       </Card>
 
+      {/* Existing itinerary modal */}
       <Modal
         open={open}
         onClose={() => { if (!submitting) { setOpen(false); setEditing(null); } }}
@@ -116,6 +250,31 @@ export default function TripDetails() {
           submitting={submitting}
         />
       </Modal>
+
+      {/* Toast region (if using common Toast hook, we already use useToast; this region supports hook toasts inside useBudget) */}
+      <div aria-live="polite" aria-atomic="true" style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 50 }}>
+        {toasts.map((t) => (
+          <div key={t.id} style={{
+            background: t.type === 'error' ? '#FEE2E2' : '#ECFDF5',
+            border: `1px solid ${t.type === 'error' ? '#EF4444' : '#10B981'}`,
+            color: 'var(--text)',
+            borderRadius: 8,
+            padding: '8px 12px',
+            marginTop: 8,
+            minWidth: 220,
+            boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
+          }}>
+            {t.message}
+            <button
+              onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
+              aria-label="Close notification"
+              style={{ float: 'right', background: 'transparent', border: 'none', cursor: 'pointer', color: '#374151' }}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
     </>
   );
 }

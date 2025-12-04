@@ -1,1 +1,24 @@
-# travel-planner-pro-219443-219452
+# Travel Planner Pro
+
+A web application that helps users plan their trips, organize itineraries, and manage travel details.
+
+## Containers
+
+- travel_planner_frontend
+  - React-based web UI
+  - See travel_planner_frontend/README.md for full setup, environment variables, architecture, and development instructions.
+
+## New: Budget Planner (feature flagged)
+
+The frontend now includes a Budget Planner in the Trip Details page that lets users:
+- Track expenses with add/edit/delete
+- Set a trip budget target and see progress
+- View category breakdown via a lightweight chart
+
+How to enable:
+- Set environment variable in the frontend: REACT_APP_FEATURE_FLAGS=FEATURE_BUDGET
+- See travel_planner_frontend/README.md for details on endpoints and usage.
+
+Expected backend endpoints:
+- GET/POST/PATCH/DELETE /trips/:tripId/expenses
+- GET/PATCH /trips/:tripId/budget

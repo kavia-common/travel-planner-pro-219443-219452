@@ -67,7 +67,7 @@ REACT_APP_HEALTHCHECK_PATH=/health
 # Feature flags
 # boolean flags: "flagA,flagB"
 # key=value flags: "flagC=on,flagD=v2", "flagE=true"
-REACT_APP_FEATURE_FLAGS=liveUpdates,theme=dark
+REACT_APP_FEATURE_FLAGS=liveUpdates,FEATURE_BUDGET,theme=dark
 REACT_APP_EXPERIMENTS_ENABLED=false
 
 # Disable Next telemetry semantics (kept for parity/library usage)
@@ -123,16 +123,19 @@ npm run build
 - Services: src/services/
   - http.js: fetch wrapper with baseUrl, timeouts, JSON handling, log-level control
   - tripsService.js, itineraryService.js, userService.js: CRUD wrappers using http client
+  - budgetService.js: expenses and budget endpoints (GET/POST/PATCH/DELETE /trips/:tripId/expenses; GET/PATCH /trips/:tripId/budget)
   - ws.js: optional WebSocket client with auto-reconnect and topic-based subscriptions
 - Hooks: src/hooks/
   - useTrips.js: load and mutate trips, optional WebSocket/polling updates
   - useItinerary.js: per-trip itinerary operations, optional WebSocket/polling updates
+  - useBudget.js: manage expenses and budget target/progress; exposes CRUD and computed totals/breakdown
   - useFetch.js: generic async helper
   - useTheme.js: light/dark theme with localStorage and [data-theme] attribute
 - Components: src/components/
   - common/: Button, Card, Header, Modal, Sidebar, Toast
   - trips/: TripForm, TripList, TripListItem
   - itinerary/: ItineraryForm, ItineraryItem, ItineraryView
+  - budget/: BudgetSummary, ExpenseList, ExpenseForm, BudgetChart
   - calendar/: CalendarView
 - Pages: src/pages/
   - Dashboard, Trips, TripDetails, Calendar, Settings
@@ -142,27 +145,23 @@ npm run build
 
 Feature flags are parsed from REACT_APP_FEATURE_FLAGS and REACT_APP_EXPERIMENTS_ENABLED in src/config/env.js and exposed via src/flags/featureFlags.js.
 
-- Boolean flags: "liveUpdates,darkUI"
+- Boolean flags: "liveUpdates,darkUI,FEATURE_BUDGET"
 - Key=value flags: "theme=dark,calendarMode=v2"
 - Helpers:
-  - isEnabled('flag'): boolean for simple flags or key=value truthy (true/1/yes/on/enabled)
+  - isEnabled('flag') / isFeatureEnabled('flag'): boolean for simple flags or key=value truthy (true/1/yes/on/enabled)
   - getFlag('flag', defaultValue): returns string value for key=value flags
   - experimentsOn(): mirrors REACT_APP_EXPERIMENTS_ENABLED
   - allFlags(): debug snapshot of parsed flags
+- Budget feature flag:
+  - FEATURE_BUDGET controls visibility of the Budget tab in TripDetails.
+  - Enable by adding FEATURE_BUDGET to REACT_APP_FEATURE_FLAGS.
 
 Example usage:
 ```javascript
-import { isEnabled, getFlag, experimentsOn } from './flags/featureFlags';
+import { isEnabled, isFeatureEnabled, FEATURE_BUDGET } from './flags/featureFlags';
 
-if (isEnabled('liveUpdates')) {
-  // enable WS and/or UI affordances
-}
-
-const theme = getFlag('theme', 'light');
-// theme -> 'dark' if REACT_APP_FEATURE_FLAGS includes theme=dark
-
-if (experimentsOn()) {
-  // enable experimental components
+if (isEnabled(FEATURE_BUDGET)) {
+  // render Budget Planner UI
 }
 ```
 
@@ -361,7 +360,7 @@ REACT_APP_API_BASE=http://localhost:4000
 REACT_APP_WS_URL=ws://localhost:4000/ws
 REACT_APP_NODE_ENV=development
 REACT_APP_LOG_LEVEL=debug
-REACT_APP_FEATURE_FLAGS=liveUpdates
+REACT_APP_FEATURE_FLAGS=liveUpdates,FEATURE_BUDGET
 REACT_APP_HEALTHCHECK_PATH=/health
 REACT_APP_ENABLE_SOURCE_MAPS=true
 ```
@@ -382,3 +381,4 @@ npm start
 - router: src/routes/Router.jsx
 
 ---
+
