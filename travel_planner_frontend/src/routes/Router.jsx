@@ -25,6 +25,7 @@ export default function Router() {
       {wizardEnabled && <Route path="/trips/new" element={<TripWizard />} />}
       {wizardEnabled && <Route path="/trips/:id/edit" element={<TripWizard />} />}
       <Route path="/trips/:tripId" element={<TripDetails />} />
+      {isEnabled('PLACES_SEARCH') && <Route path="/trips/:tripId/places" element={<TripDetails />} />}
       <Route path="/calendar" element={<Calendar />} />
       {/* Optional direct calendar view for a specific trip, reuse TripDetails Calendar tab */}
       {isEnabled('ITINERARY_CALENDAR') && <Route path="/trips/:tripId/calendar" element={<TripDetails />} />}

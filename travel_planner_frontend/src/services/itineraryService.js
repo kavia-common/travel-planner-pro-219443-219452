@@ -68,6 +68,31 @@ export const ItineraryService = {
       `/api/trips/${encodeURIComponent(tripId)}/itinerary/${encodeURIComponent(itemId)}`
     );
   },
+
+  // PUBLIC_INTERFACE
+  /** addItineraryItemFromPlace - convenience to add a place to itinerary on a specific date */
+  async addItineraryItemFromPlace(tripId, place, date) {
+    if (!tripId) throw new Error('tripId is required');
+    if (!place) throw new Error('place is required');
+    // Minimal shape expected by backend Itinerary item
+    const item = {
+      title: place.name || 'Place',
+      type: 'place',
+      date,
+      location: {
+        name: place.name || '',
+        address: place.address || '',
+        city: place.city || '',
+        country: place.country || '',
+        lat: place.lat || undefined,
+        lon: place.lon || undefined,
+        placeId: place.id || undefined,
+        category: place.type || undefined,
+      },
+      notes: '',
+    };
+    return this.add(tripId, item);
+  },
 };
 
 export default ItineraryService;

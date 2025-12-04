@@ -27,6 +27,31 @@ HTTP endpoints (optional, if backend supports them):
 
 If endpoints are not available, the app falls back to localStorage seamlessly.
 
+## Places Search
+
+A Places Search feature lets users find points of interest and add them to an itinerary or save as a destination.
+
+- UI: Trip Details includes a Places tab (if PLACES_SEARCH is enabled) with a search bar, results, and an Add action.
+- Behavior: Debounced input, top 10 results, keyboard navigation (Up/Down/Enter), Escape clears, loading/empty states, and recent queries (session-scoped).
+- Adding to itinerary: choose “today” or pick a date (native date input). Adds via itinerary service.
+- Providers:
+  - OpenStreetMap/Nominatim (default, no key) with rate-limit friendly headers.
+  - Mapbox (requires REACT_APP_MAPBOX_TOKEN).
+  - Google (placeholder in demo; prefer Nominatim/Mapbox).
+- Fallback: Local curated dataset with fuzzy matching if no provider configured or if provider fails.
+
+Feature flag:
+- PLACES_SEARCH (default: true). Can be disabled via REACT_APP_FEATURE_FLAGS.
+
+Provider env vars:
+- REACT_APP_PLACES_PROVIDER=openstreetmap|mapbox|google (default: openstreetmap)
+- REACT_APP_NOMINATIM_URL (optional, default https://nominatim.openstreetmap.org)
+- REACT_APP_MAPBOX_TOKEN (optional, for Mapbox provider)
+- REACT_APP_GOOGLE_MAPS_API_KEY (optional, for Google provider - not fully implemented in demo)
+
+Routes:
+- The Places tab is within Trip Details. A direct route is also available: /trips/:tripId/places (renders TripDetails with the Places tab).
+
 ## Environment Variables
 
 Place variables in a .env file at the project root (or use your CI/CD environment). All variables are prefixed with REACT_APP_ to be accessible at build time.
@@ -46,6 +71,10 @@ Place variables in a .env file at the project root (or use your CI/CD environmen
 - REACT_APP_EXPERIMENTS_ENABLED: true/false global experiments toggle
 - REACT_APP_EXCHANGE_RATES_URL: Optional - rates API endpoint for currency conversion (see Budget Tracking)
 - REACT_APP_EXCHANGE_RATES_API_KEY: Optional - API key for the rates provider
+- REACT_APP_PLACES_PROVIDER: openstreetmap | mapbox | google (default openstreetmap)
+- REACT_APP_NOMINATIM_URL: Optional - override Nominatim base URL (default https://nominatim.openstreetmap.org)
+- REACT_APP_MAPBOX_TOKEN: Optional - token for Mapbox Geocoding API
+- REACT_APP_GOOGLE_MAPS_API_KEY: Optional - Google Places API key (demo not fully implemented)
 
 Example .env:
 ```bash
@@ -69,9 +98,9 @@ REACT_APP_HEALTHCHECK_PATH=/health
 
 # Feature flags
 # JSON syntax:
-REACT_APP_FEATURE_FLAGS={"FEATURE_BUDGET":true,"ITINERARY_CALENDAR":true}
+REACT_APP_FEATURE_FLAGS={"FEATURE_BUDGET":true,"ITINERARY_CALENDAR":true,"PLACES_SEARCH":true}
 # OR comma-separated:
-# REACT_APP_FEATURE_FLAGS=FEATURE_BUDGET,ITINERARY_CALENDAR,PACKING_LIST
+# REACT_APP_FEATURE_FLAGS=FEATURE_BUDGET,ITINERARY_CALENDAR,PACKING_LIST,PLACES_SEARCH
 
 REACT_APP_EXPERIMENTS_ENABLED=false
 

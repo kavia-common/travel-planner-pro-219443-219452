@@ -5,6 +5,7 @@ import CalendarItinerary from '../components/itinerary/CalendarItinerary';
 import { useItinerary } from '../hooks/useItinerary';
 import BudgetDashboard from '../components/budget/BudgetDashboard';
 import { isFeatureEnabled } from '../flags/featureFlags';
+import PlacesSearch from '../components/places/PlacesSearch';
 
 /**
  * PUBLIC_INTERFACE
@@ -16,10 +17,12 @@ const TripDetails = () => {
   const { itinerary, addItem, updateItem, removeItem } = useItinerary(id);
 
   const hasBudget = isFeatureEnabled('FEATURE_BUDGET');
+  const hasPlaces = isFeatureEnabled('PLACES_SEARCH');
   const tabsBase = useMemo(() => ([
     { key: 'itinerary', label: 'Itinerary' },
     ...(hasBudget ? [{ key: 'budget', label: 'Budget' }] : []),
-  ]), [hasBudget]);
+    ...(hasPlaces ? [{ key: 'places', label: 'Places' }] : []),
+  ]), [hasBudget, hasPlaces]);
   const [active, setActive] = useState('itinerary');
 
   return (
@@ -58,6 +61,20 @@ const TripDetails = () => {
           )}
           {hasBudget && active === 'budget' && (
             <BudgetDashboard tripId={id} />
+          )}
+          {hasPlaces && active === 'places' && (
+            <Card>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Places</h3>
+              <PlacesSearch
+                tripId={id}
+                nearestDate={(() => {
+                  // Best-effort to find nearest itinerary day
+                  const dates = Array.isArray(itinerary) ? itinerary.map(i => i.date).filter(Boolean) : [];
+                  dates.sort();
+                  return dates[0] || new Date().toISOString().slice(0, 10);
+                })()}
+              />
+            </Card>
           )}
         </div>
       </div>

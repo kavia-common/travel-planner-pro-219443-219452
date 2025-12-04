@@ -34,6 +34,7 @@ export const FEATURE_FLAGS = (() => {
     FEATURE_EXPLORE: true,
     ITINERARY_CALENDAR: true,
     PACKING_LIST: true,
+    PLACES_SEARCH: true,
   };
 
   // Merge with overrides from sessionStorage (if any)
