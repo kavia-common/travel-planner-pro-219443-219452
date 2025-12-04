@@ -1,7 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import Modal from '../components/common/Modal';
+import ItineraryView from '../components/itinerary/ItineraryView';
+import ItineraryForm from '../components/itinerary/ItineraryForm';
 import { useItinerary } from '../hooks/useItinerary';
 import { useTrips } from '../hooks/useTrips';
 
@@ -11,8 +14,13 @@ import { useTrips } from '../hooks/useTrips';
  */
 export default function TripDetails() {
   const { tripId } = useParams();
-  const { items, loading, error, loadItinerary } = useItinerary(tripId);
+  const { items, loading, error, loadItinerary, addItem, updateItem, removeItem } = useItinerary(tripId);
   const { getTrip, selectTrip } = useTrips();
+
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const describedId = useMemo(() => 'itin-modal-desc', []);
 
   useEffect(() => {
     selectTrip(tripId);
@@ -22,36 +30,67 @@ export default function TripDetails() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId]);
 
+  async function handleSubmit(payload) {
+    setSubmitting(true);
+    try {
+      if (editing?.id) {
+        await updateItem(editing.id, payload);
+      } else {
+        await addItem(payload);
+      }
+      setOpen(false);
+      setEditing(null);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
-    <Card title="Trip Details" subtitle={`Trip ID: ${tripId}`}>
-      {loading && <div className="text-muted">Loading itinerary…</div>}
-      {error && (
-        <div className="text-muted" role="alert" style={{ color: 'var(--color-error)' }}>
-          Failed to load itinerary.
+    <>
+      <Card
+        title="Trip Details"
+        subtitle={`Trip ID: ${tripId}`}
+        footer={
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button variant="primary" onClick={() => { setEditing(null); setOpen(true); }}>Add Itinerary Item</Button>
+          </div>
+        }
+      >
+        {loading && <div className="text-muted">Loading itinerary…</div>}
+        {error && (
+          <div className="text-muted" role="alert" style={{ color: 'var(--color-error)' }}>
+            Failed to load itinerary.
+          </div>
+        )}
+        {!loading && !error && items.length === 0 && (
+          <div className="text-muted">No itinerary items yet. Add your first activity.</div>
+        )}
+        {!loading && !error && items.length > 0 && (
+          <ItineraryView
+            items={items}
+            onEdit={(it) => { setEditing(it); setOpen(true); }}
+            onRemove={(it) => { removeItem(it.id).catch(() => {}); }}
+          />
+        )}
+      </Card>
+
+      <Modal
+        open={open}
+        onClose={() => { if (!submitting) { setOpen(false); setEditing(null); } }}
+        title={editing ? 'Edit Itinerary Item' : 'Add Itinerary Item'}
+        ariaDescribedBy={describedId}
+        ariaLabelledBy="itinerary-modal-title"
+      >
+        <div id={describedId} className="text-muted" style={{ marginBottom: 8 }}>
+          {editing ? 'Update details of your itinerary item.' : 'Enter details for the new itinerary item.'}
         </div>
-      )}
-      {!loading && !error && items.length === 0 && (
-        <div className="text-muted">No itinerary items yet. Add your first activity.</div>
-      )}
-      {!loading && !error && items.length > 0 && (
-        <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: 8 }}>
-          {items.map((it) => (
-            <li key={it.id} className="surface rounded-md" style={{ padding: '0.75rem', border: '1px solid var(--color-border)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: 600 }}>{it.title || it.name || it.type || 'Itinerary Item'}</div>
-                  {it.time && <div className="text-muted" style={{ fontSize: 13, marginTop: 4 }}>{it.time}</div>}
-                  {it.notes && <div className="text-muted" style={{ fontSize: 13, marginTop: 4 }}>{it.notes}</div>}
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <Button variant="ghost">Edit</Button>
-                  <Button variant="ghost">Remove</Button>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
+        <ItineraryForm
+          initial={editing}
+          onSubmit={handleSubmit}
+          onCancel={() => { if (!submitting) { setOpen(false); setEditing(null); } }}
+          submitting={submitting}
+        />
+      </Modal>
+    </>
   );
 }
