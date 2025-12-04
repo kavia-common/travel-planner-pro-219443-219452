@@ -123,26 +123,50 @@ export default function Header() {
             </li>
           </ul>
         </nav>
-        <button
-          onClick={toggleTheme}
-          className="btn-base transition-base"
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-          style={{
-            border: '1px solid var(--color-border)',
-            background: 'var(--color-surface)',
-            color: 'var(--color-text)',
-            padding: '8px 12px',
-            borderRadius: 'var(--radius-sm)',
-            cursor: 'pointer',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.filter = 'saturate(1.05)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.filter = 'none'; }}
-          onFocus={(e) => { e.currentTarget.style.boxShadow = 'var(--focus-ring)'; }}
-          onBlur={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} />
+          <HeaderNotificationBell />
+        </div>
       </div>
     </header>
   );
+}
+
+function ThemeToggleButton({ theme, toggleTheme }) {
+  return (
+    <button
+      onClick={toggleTheme}
+      className="btn-base transition-base"
+      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      style={{
+        border: '1px solid var(--color-border)',
+        background: 'var(--color-surface)',
+        color: 'var(--color-text)',
+        padding: '8px 12px',
+        borderRadius: 'var(--radius-sm)',
+        cursor: 'pointer',
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.filter = 'saturate(1.05)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.filter = 'none'; }}
+      onFocus={(e) => { e.currentTarget.style.boxShadow = 'var(--focus-ring)'; }}
+      onBlur={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}
+    >
+      {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
+    </button>
+  );
+}
+
+// Inline wrapper to lazy import NotificationBell without breaking initial render
+function HeaderNotificationBell() {
+  const [Comp, setComp] = React.useState(null);
+  React.useEffect(() => {
+    let mounted = true;
+    import('../notifications/NotificationBell.jsx')
+      .then((m) => {
+        if (mounted) setComp(() => m.default);
+      })
+      .catch(() => setComp(() => () => null));
+    return () => { mounted = false; };
+  }, []);
+  return Comp ? <Comp /> : null;
 }

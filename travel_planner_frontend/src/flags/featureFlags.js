@@ -121,6 +121,9 @@ export function allFlags() {
 export const FEATURE_BUDGET = 'FEATURE_BUDGET';
 
 // PUBLIC_INTERFACE
+export const FEATURE_NOTIFICATIONS = 'FEATURE_NOTIFICATIONS';
+
+// PUBLIC_INTERFACE
 export const isFeatureEnabled = isEnabled;
 
 export default {
@@ -134,4 +137,5 @@ export default {
   clearAllOverrides,
   refreshOverrides,
   FEATURE_BUDGET,
+  FEATURE_NOTIFICATIONS,
 };

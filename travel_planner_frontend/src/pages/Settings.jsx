@@ -2,7 +2,8 @@ import React, { useMemo, useRef, useState } from 'react';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import HealthService from '../services/healthService';
-import { allFlags, experimentsOn, isEnabled, setOverride, clearOverride } from '../flags/featureFlags';
+import { allFlags, experimentsOn, isEnabled, setOverride, clearOverride, FEATURE_NOTIFICATIONS } from '../flags/featureFlags';
+import NotificationService from '../services/notificationService';
 
 /**
  * PUBLIC_INTERFACE
@@ -66,9 +67,97 @@ export default function Settings() {
   const flagList = snapshot.flags || [];
   const valueEntries = Object.entries(snapshot.values || {});
 
+  const [prefs, setPrefs] = useState(null);
+  const [prefsLoading, setPrefsLoading] = useState(false);
+  const [prefsError, setPrefsError] = useState(null);
+
+  async function loadPrefs() {
+    setPrefsLoading(true);
+    setPrefsError(null);
+    try {
+      const res = await NotificationService.getPreferences();
+      setPrefs(res || {});
+    } catch (e) {
+      setPrefsError(e);
+    } finally {
+      setPrefsLoading(false);
+    }
+  }
+
+  async function savePrefs(next) {
+    setPrefsLoading(true);
+    setPrefsError(null);
+    try {
+      const saved = await NotificationService.updatePreferences(next);
+      setPrefs(saved || next);
+    } catch (e) {
+      setPrefsError(e);
+    } finally {
+      setPrefsLoading(false);
+    }
+  }
+
+  React.useEffect(() => {
+    if (isEnabled(FEATURE_NOTIFICATIONS)) {
+      loadPrefs();
+    }
+  }, []);
+
   return (
     <Card title="Settings" subtitle="Personalize your Travel Planner Pro experience">
       <div className="text-muted">Theme, notifications, and other preferences will appear here.</div>
+
+      {isEnabled(FEATURE_NOTIFICATIONS) && (
+        <div className="mt-4" role="region" aria-label="Notification preferences">
+          <Card
+            title="Notifications"
+            subtitle="Choose how you want to be notified about trip updates, itinerary changes, and reminders."
+          >
+            {prefsLoading && <div className="text-muted" role="status" aria-live="polite">Loading preferences…</div>}
+            {prefsError && !prefsLoading && <div role="alert">Failed to load preferences.</div>}
+            {prefs && !prefsLoading && (
+              <div style={{ display: 'grid', gap: 12 }}>
+                <PreferenceToggle
+                  label="Trip updates"
+                  description="Get notified when trips are created, updated, or shared with you."
+                  checked={!!prefs.tripUpdates}
+                  onChange={(v) => setPrefs((p) => ({ ...(p || {}), tripUpdates: v }))}
+                />
+                <PreferenceToggle
+                  label="Itinerary changes"
+                  description="Receive alerts when itinerary items are added, updated, or removed."
+                  checked={!!prefs.itineraryChanges}
+                  onChange={(v) => setPrefs((p) => ({ ...(p || {}), itineraryChanges: v }))}
+                />
+                <PreferenceToggle
+                  label="Budget alerts"
+                  description="Notify me about budget thresholds and expense changes."
+                  checked={!!prefs.budgetAlerts}
+                  onChange={(v) => setPrefs((p) => ({ ...(p || {}), budgetAlerts: v }))}
+                />
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <Button
+                    variant="primary"
+                    onClick={() => savePrefs(prefs)}
+                    disabled={prefsLoading}
+                    ariaLabel="Save notification preferences"
+                  >
+                    {prefsLoading ? 'Saving…' : 'Save'}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={loadPrefs}
+                    disabled={prefsLoading}
+                    ariaLabel="Reload notification preferences"
+                  >
+                    Reload
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
 
       <div className="mt-4" role="region" aria-label="Service status">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -163,5 +252,31 @@ export default function Settings() {
         </Card>
       </div>
     </Card>
+  );
+}
+
+function PreferenceToggle({ label, description, checked, onChange }) {
+  return (
+    <label
+      style={{
+        display: 'grid',
+        gap: 4,
+        padding: 12,
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-sm)',
+        background: 'var(--color-surface)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <input
+          type="checkbox"
+          checked={!!checked}
+          onChange={(e) => onChange?.(e.target.checked)}
+          aria-checked={!!checked}
+        />
+        <span style={{ fontWeight: 600 }}>{label}</span>
+      </div>
+      {description && <div className="text-muted" style={{ fontSize: 13 }}>{description}</div>}
+    </label>
   );
 }
