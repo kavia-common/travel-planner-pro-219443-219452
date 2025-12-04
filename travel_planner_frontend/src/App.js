@@ -3,10 +3,10 @@ import './App.css';
 import Header from './components/common/Header';
 import Sidebar from './components/common/Sidebar';
 import Card from './components/common/Card';
-import Button from './components/common/Button';
 import { Routes, Route } from 'react-router-dom';
 import { useTheme } from './hooks/useTheme';
 import { env } from './config/env';
+import { useTrips } from './hooks/useTrips';
 
 // Lazy load main pages for faster initial paint (no restructuring required)
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -41,47 +41,15 @@ function EnvBadge() {
   );
 }
 
-// Skip to content link for keyboard users
-function SkipToContent() {
-  return (
-    <a
-      href="#main-content"
-      className="transition-base"
-      style={{
-        position: 'absolute',
-        left: '-999px',
-        top: 0,
-        background: 'var(--color-surface)',
-        color: 'var(--color-text)',
-        border: '1px solid var(--color-border)',
-        padding: '8px 12px',
-        borderRadius: 'var(--radius-sm)',
-      }}
-      onFocus={(e) => {
-        e.currentTarget.style.left = '8px';
-        e.currentTarget.style.top = '8px';
-        e.currentTarget.style.boxShadow = 'var(--focus-ring)';
-      }}
-      onBlur={(e) => {
-        e.currentTarget.style.left = '-999px';
-        e.currentTarget.style.top = '0';
-        e.currentTarget.style.boxShadow = 'none';
-      }}
-    >
-      Skip to main content
-    </a>
-  );
-}
-
 // PUBLIC_INTERFACE
 function App() {
   /** App shell providing Header, Sidebar, and Main content area with routing. */
   useTheme(); // initialize theme behavior (sets data-theme and persists)
+  const { selectedTrip } = useTrips();
 
   return (
     <div className="app-shell">
-      <SkipToContent />
-      <Header />
+      <Header currentTripId={selectedTrip || null} />
       <div className="main-area bg-hero">
         <div className="layout-row">
           <Sidebar />

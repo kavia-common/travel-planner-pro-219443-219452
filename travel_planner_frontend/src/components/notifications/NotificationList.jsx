@@ -1,79 +1,64 @@
 import React from 'react';
-import NotificationItem from './NotificationItem';
 
-/**
- * PUBLIC_INTERFACE
- * NotificationList displays a list of notifications with error/empty/loading states and actions.
- */
-export default function NotificationList({
-  items = [],
-  loading = false,
-  error = null,
-  onReload,
-  onMarkRead,
-  onLoadMore,
-  hasMore = false,
-  onClose,
-  anchorRef,
-}) {
+export default function NotificationList({ items = [], onItemClick, onAction }) {
   return (
-    <div role="document" tabIndex={-1}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 10, borderBottom: '1px solid var(--color-border)' }}>
-        <strong>Notifications</strong>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button
-            type="button"
-            onClick={onReload}
-            className="transition-base"
-            aria-label="Refresh notifications"
-            style={{ border: '1px solid var(--color-border)', background: 'transparent', borderRadius: 8, padding: '4px 8px', cursor: 'pointer' }}
-          >
-            ⟳
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="transition-base"
-            aria-label="Close panel"
-            style={{ border: '1px solid var(--color-border)', background: 'transparent', borderRadius: 8, padding: '4px 8px', cursor: 'pointer' }}
-          >
-            ✕
-          </button>
-        </div>
-      </div>
-
-      {loading && (
-        <div role="status" aria-live="polite" className="text-muted" style={{ padding: 12 }}>
-          Loading…
-        </div>
-      )}
-      {error && !loading && (
-        <div role="alert" style={{ padding: 12, color: 'var(--color-text)' }}>
-          Failed to load notifications.
-        </div>
-      )}
-      {!loading && !error && items.length === 0 && (
-        <div className="text-muted" style={{ padding: 12 }}>You have no notifications.</div>
-      )}
-
-      <ul role="listbox" aria-label="Notifications list" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-        {items.map((n) => (
-          <NotificationItem key={n.id || `${n.type}-${n.createdAt}`} notification={n} onMarkRead={onMarkRead} />
-        ))}
-      </ul>
-
-      {hasMore && (
-        <div style={{ padding: 10, borderTop: '1px solid var(--color-border)' }}>
-          <button
-            type="button"
-            onClick={onLoadMore}
-            className="transition-base"
-            style={{ border: '1px solid var(--color-border)', background: 'var(--color-surface)', borderRadius: 'var(--radius-sm)', padding: '6px 10px', cursor: 'pointer', width: '100%' }}
-          >
-            Load more
-          </button>
-        </div>
-      )}
-    </div>
+    <ul className="divide-y divide-gray-100">
+      {items.map((n) => (
+        <li key={n.id || `${n.type}-${n.createdAt}`} className="p-3 hover:bg-gray-50">
+          <div className="flex items-start justify-between">
+            <div className="pr-3">
+              <div className="text-sm font-medium text-gray-800">{n.title || 'Notification'}</div>
+              {n.message && <div className="text-xs text-gray-600 mt-0.5">{n.message}</div>}
+              <div className="text-[11px] text-gray-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
+            </div>
+            <div className="flex items-center gap-2">
+              {!n.read && <span className="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded-full">New</span>}
+              <button
+                className="text-xs px-2 py-1 rounded border border-gray-200 hover:bg-gray-100"
+                onClick={() => onItemClick?.(n.id)}
+              >
+                Mark read
+              </button>
+            </div>
+          </div>
+          {(n.actions && n.actions.length > 0) && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {n.actions.includes('snooze-10m') && (
+                <button
+                  className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  onClick={() => onAction?.(n, 'snooze-10m')}
+                >
+                  Snooze +10m
+                </button>
+              )}
+              {n.actions.includes('snooze-1h') && (
+                <button
+                  className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  onClick={() => onAction?.(n, 'snooze-1h')}
+                >
+                  Snooze +1h
+                </button>
+              )}
+              {n.actions.includes('mark-done') && (
+                <button
+                  className="text-xs px-2 py-1 rounded bg-green-50 text-green-700 hover:bg-green-100"
+                  onClick={() => onAction?.(n, 'mark-done')}
+                >
+                  Mark done
+                </button>
+              )}
+              {n.actions.includes('dismiss') && (
+                <button
+                  className="text-xs px-2 py-1 rounded bg-gray-50 text-gray-700 hover:bg-gray-100"
+                  onClick={() => onAction?.(n, 'dismiss')}
+                >
+                  Dismiss
+                </button>
+              )}
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }

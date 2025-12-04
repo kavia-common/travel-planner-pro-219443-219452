@@ -8,6 +8,7 @@ import Settings from '../pages/Settings';
 import Explore from '../pages/Explore';
 import TripWizard from '../components/trips/TripWizard/TripWizard';
 import { isEnabled } from '../flags/featureFlags';
+import NotificationsPanel from '../components/notifications/NotificationsPanel';
 
 const FEATURE_EXPLORE = 'FEATURE_EXPLORE';
 
@@ -30,6 +31,7 @@ export default function Router() {
       {/* Optional direct calendar view for a specific trip, reuse TripDetails Calendar tab */}
       {isEnabled('ITINERARY_CALENDAR') && <Route path="/trips/:tripId/calendar" element={<TripDetails />} />}
       <Route path="/settings" element={<Settings />} />
+      <Route path="/notifications" element={<NotificationsPanel />} />
     </Routes>
   );
 }

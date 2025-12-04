@@ -50,6 +50,33 @@ Feature flags for visual verification:
 
 See .env.example for a complete list of variables.
 
+## Notifications and Reminders
+
+This app provides in-app notifications and reminders with optional browser notifications.
+
+- Create reminders for trip start, check-in/checkout, activity times, packing reminders, and custom notes.
+- In-app notifications appear in a toast and in the notifications panel; a bell icon shows unread count.
+- Optional Browser Notifications: if permission is granted, a native notification appears.
+- Snooze actions (+10m/+1h), Dismiss, and Mark as done are supported.
+- Data persists per trip using HTTP-first with seamless localStorage fallback.
+- Scheduling persists to localStorage and recovers after page reload; missed reminders appear as such.
+
+Feature flags:
+- FEATURE_NOTIFICATIONS (default: true)
+- REMINDERS (default: true)
+- BROWSER_NOTIFICATIONS (default: true)
+
+Environment variables:
+- REACT_APP_FEATURE_FLAGS: JSON or comma-separated to control flags
+- REACT_APP_FEATURE_NOTIFICATIONS=true|false
+- REACT_APP_REMINDERS=true|false
+- REACT_APP_BROWSER_NOTIFICATIONS=true|false
+
+Routes:
+- /notifications → full notifications panel with filters and browser notification toggle.
+
+If backend endpoints are not present, services automatically fall back to localStorage.
+
 ## Budget Tracking Feature
 
 The app includes a Budget Tracking module (enabled by default) that lets users:
@@ -147,9 +174,9 @@ REACT_APP_HEALTHCHECK_PATH=/health
 
 # Feature flags
 # JSON syntax:
-REACT_APP_FEATURE_FLAGS={"FEATURE_BUDGET":true,"ITINERARY_CALENDAR":true,"PLACES_SEARCH":true}
+REACT_APP_FEATURE_FLAGS={"FEATURE_BUDGET":true,"ITINERARY_CALENDAR":true,"PLACES_SEARCH":true,"FEATURE_NOTIFICATIONS":true,"REMINDERS":true,"BROWSER_NOTIFICATIONS":true}
 # OR comma-separated:
-# REACT_APP_FEATURE_FLAGS=FEATURE_BUDGET,ITINERARY_CALENDAR,PACKING_LIST,PLACES_SEARCH
+# REACT_APP_FEATURE_FLAGS=FEATURE_BUDGET,ITINERARY_CALENDAR,PACKING_LIST,PLACES_SEARCH,FEATURE_NOTIFICATIONS,REMINDERS,BROWSER_NOTIFICATIONS
 
 REACT_APP_EXPERIMENTS_ENABLED=false
 

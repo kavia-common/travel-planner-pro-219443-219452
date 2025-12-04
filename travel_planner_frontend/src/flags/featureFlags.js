@@ -1,24 +1,31 @@
 export const FEATURE_FLAGS = (() => {
-  // Parse JSON from REACT_APP_FEATURE_FLAGS if present: e.g., {"TRIP_WIZARD": true, "FEATURE_BUDGET": false}
+  // Parse JSON or comma-separated flags from REACT_APP_FEATURE_FLAGS
   let flags = {};
   try {
     const raw = process.env.REACT_APP_FEATURE_FLAGS;
     if (raw) {
-      // Support both JSON and simple comma-separated form (key or key=value)
       if (raw.trim().startsWith('{')) {
         flags = JSON.parse(raw);
       } else {
         const parsed = {};
-        raw.split(',').map(s => s.trim()).filter(Boolean).forEach(pair => {
-          if (pair.includes('=')) {
-            const [k, v] = pair.split('=');
-            const val = String(v).toLowerCase();
-            parsed[k] = ['true','1','yes','on','enabled'].includes(val) ? true :
-                        ['false','0','no','off','disabled'].includes(val) ? false : v;
-          } else {
-            parsed[pair] = true;
-          }
-        });
+        raw
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .forEach((pair) => {
+            if (pair.includes('=')) {
+              const [k, v] = pair.split('=');
+              const val = String(v).toLowerCase();
+              parsed[k] =
+                ['true', '1', 'yes', 'on', 'enabled'].includes(val)
+                  ? true
+                  : ['false', '0', 'no', 'off', 'disabled'].includes(val)
+                  ? false
+                  : v;
+            } else {
+              parsed[pair] = true;
+            }
+          });
         flags = parsed;
       }
     }
@@ -26,6 +33,7 @@ export const FEATURE_FLAGS = (() => {
     // eslint-disable-next-line no-console
     console.warn('Invalid REACT_APP_FEATURE_FLAGS value, using defaults.');
   }
+
   // Defaults for known features in this app
   const defaults = {
     TRIP_WIZARD: true,
@@ -35,6 +43,8 @@ export const FEATURE_FLAGS = (() => {
     ITINERARY_CALENDAR: true,
     PACKING_LIST: true,
     PLACES_SEARCH: true,
+    REMINDERS: true,
+    BROWSER_NOTIFICATIONS: true,
   };
 
   // Merge with overrides from sessionStorage (if any)
@@ -47,6 +57,20 @@ export const FEATURE_FLAGS = (() => {
   } catch {
     // ignore
   }
+
+  // Also allow dedicated envs to override
+  const boolEnv = (key, def) => {
+    const v = process.env[`REACT_APP_${key}`];
+    if (typeof v === 'undefined') return def;
+    const val = String(v).toLowerCase();
+    if (['true', '1', 'yes', 'on', 'enabled'].includes(val)) return true;
+    if (['false', '0', 'no', 'off', 'disabled'].includes(val)) return false;
+    return def;
+  };
+
+  defaults.FEATURE_NOTIFICATIONS = boolEnv('FEATURE_NOTIFICATIONS', defaults.FEATURE_NOTIFICATIONS);
+  defaults.REMINDERS = boolEnv('REMINDERS', defaults.REMINDERS);
+  defaults.BROWSER_NOTIFICATIONS = boolEnv('BROWSER_NOTIFICATIONS', defaults.BROWSER_NOTIFICATIONS);
 
   return {
     ...defaults,
@@ -81,6 +105,20 @@ export const FEATURE_EXPLORE = FEATURE_FLAGS.FEATURE_EXPLORE;
 export const ITINERARY_CALENDAR = FEATURE_FLAGS.ITINERARY_CALENDAR;
 export const PACKING_LIST = FEATURE_FLAGS.PACKING_LIST;
 export const TRIP_WIZARD = FEATURE_FLAGS.TRIP_WIZARD;
+export const REMINDERS = FEATURE_FLAGS.REMINDERS;
+export const BROWSER_NOTIFICATIONS = FEATURE_FLAGS.BROWSER_NOTIFICATIONS;
+
+// Provide a default export object for legacy imports (backwards compatibility)
+const defaultExport = {
+  ...FEATURE_FLAGS,
+  isFeatureEnabled,
+  isEnabled,
+  allFlags,
+  experimentsOn,
+  setOverride,
+  clearOverride,
+};
+export default defaultExport;
 
 /**
  * PUBLIC_INTERFACE
