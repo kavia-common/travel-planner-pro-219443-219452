@@ -1,11 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
 
 // PUBLIC_INTERFACE
 export default function Header() {
-  /** Header with app title, nav placeholder, and theme toggle */
+  /** Header with app title, nav links, and theme toggle */
   const { theme, toggleTheme } = useTheme();
+
+  const linkStyle = ({ isActive }) => ({
+    textDecoration: 'none',
+    padding: '6px 10px',
+    borderRadius: '8px',
+    color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
+    background: isActive ? 'linear-gradient(90deg, var(--gradient-start), transparent)' : 'transparent',
+    border: '1px solid var(--color-border)',
+  });
 
   return (
     <header
@@ -27,9 +36,10 @@ export default function Header() {
         </div>
         <nav aria-label="Primary">
           <ul className="flex items-center gap-4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            <li><Link to="/" className="text-muted" style={{ textDecoration: 'none' }}>Dashboard</Link></li>
-            <li><Link to="/trips" className="text-muted" style={{ textDecoration: 'none' }}>Trips</Link></li>
-            <li><Link to="/calendar" className="text-muted" style={{ textDecoration: 'none' }}>Calendar</Link></li>
+            <li><NavLink to="/" end style={linkStyle}>Dashboard</NavLink></li>
+            <li><NavLink to="/trips" style={linkStyle}>Trips</NavLink></li>
+            <li><NavLink to="/calendar" style={linkStyle}>Calendar</NavLink></li>
+            <li><NavLink to="/settings" style={linkStyle}>Settings</NavLink></li>
           </ul>
         </nav>
         <button

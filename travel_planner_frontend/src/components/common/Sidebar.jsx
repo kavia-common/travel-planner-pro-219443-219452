@@ -1,17 +1,39 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 // PUBLIC_INTERFACE
 export default function Sidebar() {
-  /** Sidebar with placeholder links for future sections */
-  const location = useLocation();
+  /** Sidebar with navigation, trip search, and placeholder trip list */
+  const [query, setQuery] = useState('');
 
   const links = [
-    { to: '/', label: 'Overview' },
+    { to: '/', label: 'Overview', end: true },
     { to: '/trips', label: 'My Trips' },
     { to: '/calendar', label: 'Calendar' },
     { to: '/settings', label: 'Settings' },
   ];
+
+  // Placeholder trips for sidebar linking
+  const trips = useMemo(
+    () => [
+      { id: 'paris-2024', name: 'Paris Getaway' },
+      { id: 'tokyo-spring', name: 'Tokyo Spring' },
+      { id: 'alps-hike', name: 'Alps Hike' },
+    ],
+    []
+  );
+
+  const filtered = trips.filter(t => t.name.toLowerCase().includes(query.toLowerCase()));
+
+  const linkStyle = ({ isActive }) => ({
+    display: 'block',
+    textDecoration: 'none',
+    padding: '10px 12px',
+    color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
+    background: isActive ? 'linear-gradient(90deg, var(--gradient-start), transparent)' : 'transparent',
+    borderRadius: 'var(--radius-sm)',
+    border: '1px solid var(--color-border)',
+  });
 
   return (
     <aside
@@ -31,33 +53,51 @@ export default function Sidebar() {
       </div>
       <nav>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
-          {links.map((l) => {
-            const active = location.pathname === l.to;
-            return (
-              <li key={l.to}>
-                <Link
-                  to={l.to}
-                  className="transition-base"
-                  style={{
-                    display: 'block',
-                    textDecoration: 'none',
-                    padding: '10px 12px',
-                    color: active ? 'var(--color-primary)' : 'var(--color-text)',
-                    background: active ? 'linear-gradient(90deg, var(--gradient-start), transparent)' : 'transparent',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid var(--color-border)',
-                  }}
-                >
-                  {l.label}
-                </Link>
-              </li>
-            );
-          })}
+          {links.map((l) => (
+            <li key={l.to}>
+              <NavLink to={l.to} end={l.end} className="transition-base" style={linkStyle}>
+                {l.label}
+              </NavLink>
+            </li>
+          ))}
         </ul>
       </nav>
-      <div className="mt-4 text-muted" style={{ fontSize: 12 }}>
-        Placeholder list for trips will be shown here later.
+
+      <div className="mt-4 text-muted" style={{ fontWeight: 600, fontSize: 12, letterSpacing: 0.6 }}>
+        TRIPS
       </div>
+      <div className="mt-2" role="search">
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search trips..."
+          aria-label="Search trips"
+          className="transition-base"
+          style={{
+            width: '100%',
+            padding: '8px 10px',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--color-border)',
+            background: 'var(--color-surface)',
+            color: 'var(--color-text)',
+          }}
+        />
+      </div>
+      <ul style={{ listStyle: 'none', padding: 0, marginTop: 8, display: 'grid', gap: 6 }}>
+        {filtered.length === 0 && (
+          <li className="text-muted" style={{ fontSize: 12 }}>
+            No trips found.
+          </li>
+        )}
+        {filtered.map((t) => (
+          <li key={t.id}>
+            <NavLink to={`/trips/${t.id}`} className="transition-base" style={linkStyle}>
+              {t.name}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
     </aside>
   );
 }
