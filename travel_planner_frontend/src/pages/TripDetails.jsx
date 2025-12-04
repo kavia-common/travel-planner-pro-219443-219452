@@ -12,6 +12,7 @@ import Modal from '../components/common/Modal';
 import Toast from '../components/common/Toast';
 import { addReminder, listReminders, removeReminder, updateReminder, pushNotification, listNotifications, markRead } from '../services/notificationsService';
 import { schedule, cancel, recover } from '../services/schedulerService';
+import PdfExportButton from '../components/export/PdfExportButton';
 
 /**
  * PUBLIC_INTERFACE
@@ -131,7 +132,15 @@ const TripDetails = () => {
               <div className="badge">Active Trip</div>
               <div style={{ fontWeight: 800, fontSize: '20px', marginTop: 6 }}>Trip Details</div>
             </div>
-            <div><span className="chip chip--amber">Ocean theme</span></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="chip chip--amber">Ocean theme</span>
+              {featureFlags.PDF_EXPORT && (
+                <PdfExportButton
+                  trip={{ id: tripId, name: 'Current Trip' }}
+                  items={itineraryItems}
+                />
+              )}
+            </div>
           </div>
         </div>
         <div className="card-body">

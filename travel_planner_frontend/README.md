@@ -193,9 +193,9 @@ REACT_APP_HEALTHCHECK_PATH=/health
 
 # Feature flags
 # JSON syntax:
-REACT_APP_FEATURE_FLAGS={"FEATURE_BUDGET":true,"ITINERARY_CALENDAR":true,"PLACES_SEARCH":true,"FEATURE_NOTIFICATIONS":true,"REMINDERS":true,"BROWSER_NOTIFICATIONS":true}
+REACT_APP_FEATURE_FLAGS={"FEATURE_BUDGET":true,"ITINERARY_CALENDAR":true,"PLACES_SEARCH":true,"FEATURE_NOTIFICATIONS":true,"REMINDERS":true,"BROWSER_NOTIFICATIONS":true,"PDF_EXPORT":true}
 # OR comma-separated:
-# REACT_APP_FEATURE_FLAGS=FEATURE_BUDGET,ITINERARY_CALENDAR,PACKING_LIST,PLACES_SEARCH,FEATURE_NOTIFICATIONS,REMINDERS,BROWSER_NOTIFICATIONS
+# REACT_APP_FEATURE_FLAGS=FEATURE_BUDGET,ITINERARY_CALENDAR,PACKING_LIST,PLACES_SEARCH,FEATURE_NOTIFICATIONS,REMINDERS,BROWSER_NOTIFICATIONS,PDF_EXPORT
 
 REACT_APP_EXPERIMENTS_ENABLED=false
 
@@ -222,6 +222,26 @@ Works with or without backend endpoints:
 
 Styling:
 - Ocean Professional theme with soft shadows, rounded corners, and subtle transitions.
+
+## PDF Itinerary Export
+
+Export a beautifully formatted itinerary as a multi-page PDF directly in the browser (offline-capable).
+
+- Where: Trip Details header → Export → Export Itinerary as PDF
+- Options: paper size (A4/Letter), orientation (Portrait/Landscape), sections (cover, daily schedule, packing summary, budget summary, map snapshot placeholder), theme (Ocean Professional)
+- Pagination with page numbers and crisp text rendering
+- Works without backend; all client-side via jsPDF + html2canvas
+
+Feature flag:
+- PDF_EXPORT (default: true)
+  - Enable/disable via:
+    - REACT_APP_PDF_EXPORT=true|false
+    - or include in REACT_APP_FEATURE_FLAGS JSON/comma list
+
+Environment example:
+- REACT_APP_FEATURE_FLAGS={"PDF_EXPORT": true}
+
+Note: Map snapshot is a placeholder in this build and will be omitted gracefully if not available.
 
 ## Development
 

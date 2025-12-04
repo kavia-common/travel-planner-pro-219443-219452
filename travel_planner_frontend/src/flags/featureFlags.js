@@ -48,6 +48,8 @@ export const FEATURE_FLAGS = (() => {
     TIMELINE_MAP: true,
     // Global Search feature flag (default true)
     GLOBAL_SEARCH: true,
+    // PDF export (default true)
+    PDF_EXPORT: true,
   };
 
   // Merge with overrides from sessionStorage (if any)
@@ -75,6 +77,7 @@ export const FEATURE_FLAGS = (() => {
   defaults.REMINDERS = boolEnv('REMINDERS', defaults.REMINDERS);
   defaults.BROWSER_NOTIFICATIONS = boolEnv('BROWSER_NOTIFICATIONS', defaults.BROWSER_NOTIFICATIONS);
   defaults.TIMELINE_MAP = boolEnv('TIMELINE_MAP', defaults.TIMELINE_MAP);
+  defaults.PDF_EXPORT = boolEnv('PDF_EXPORT', defaults.PDF_EXPORT);
 
   return {
     ...defaults,
@@ -112,6 +115,7 @@ export const TRIP_WIZARD = FEATURE_FLAGS.TRIP_WIZARD;
 export const REMINDERS = FEATURE_FLAGS.REMINDERS;
 export const BROWSER_NOTIFICATIONS = FEATURE_FLAGS.BROWSER_NOTIFICATIONS;
 export const TIMELINE_MAP = FEATURE_FLAGS.TIMELINE_MAP;
+export const PDF_EXPORT = FEATURE_FLAGS.PDF_EXPORT;
 
 // Provide a default export object for legacy imports (backwards compatibility)
 const defaultExport = {

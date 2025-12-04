@@ -1,4 +1,5 @@
 @import './theme/ocean.css';
+@import './theme/print.css';
 
 /* Map marker subtle transition (Ocean Professional) */
 .marker { transition: transform 150ms ease; }
