@@ -1,19 +1,23 @@
 import React, { useMemo, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { isEnabled } from '../../flags/featureFlags';
+
+const FEATURE_EXPLORE = 'FEATURE_EXPLORE';
 
 // PUBLIC_INTERFACE
 export default function Sidebar() {
   /** Sidebar with navigation, trip search, and placeholder trip list with icons */
   const [query, setQuery] = useState('');
+  const showExplore = isEnabled(FEATURE_EXPLORE);
 
   const links = [
     { to: '/', label: 'Overview', end: true, icon: '🧭' },
+    ...(showExplore ? [{ to: '/explore', label: 'Explore', icon: '🧭' }] : []),
     { to: '/trips', label: 'My Trips', icon: '🧳' },
     { to: '/calendar', label: 'Calendar', icon: '📅' },
     { to: '/settings', label: 'Settings', icon: '⚙️' },
   ];
 
-  // Placeholder trips for sidebar linking
   const trips = useMemo(
     () => [
       { id: 'paris-2024', name: 'Paris Getaway', icon: '🗼' },

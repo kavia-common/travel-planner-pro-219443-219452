@@ -117,11 +117,16 @@ export function allFlags() {
   };
 }
 
+/* Existing helpers and exports above remain unchanged */
+
 // PUBLIC_INTERFACE
 export const FEATURE_BUDGET = 'FEATURE_BUDGET';
 
 // PUBLIC_INTERFACE
 export const FEATURE_NOTIFICATIONS = 'FEATURE_NOTIFICATIONS';
+
+// PUBLIC_INTERFACE
+export const FEATURE_EXPLORE = 'FEATURE_EXPLORE';
 
 // PUBLIC_INTERFACE
 export const isFeatureEnabled = isEnabled;
@@ -138,4 +143,5 @@ export default {
   refreshOverrides,
   FEATURE_BUDGET,
   FEATURE_NOTIFICATIONS,
+  FEATURE_EXPLORE,
 };

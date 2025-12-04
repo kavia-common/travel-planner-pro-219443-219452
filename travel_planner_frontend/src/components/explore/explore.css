@@ -1,0 +1,109 @@
+.explore-searchbar {
+  margin: 0.5rem 0 1rem;
+}
+.explore-input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  color: #111827;
+}
+.explore-input:focus {
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  border: 0;
+}
+
+.explore-filters {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.explore-fieldset {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+}
+.explore-legend {
+  color: #111827;
+  font-weight: 600;
+  padding: 0 0.25rem;
+}
+.explore-filter-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 0.25rem;
+}
+.explore-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #1f2937;
+}
+
+.explore-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.explore-card {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+.explore-card-media {
+  width: 100%;
+  height: 140px;
+  background: linear-gradient(180deg, rgba(37,99,235,0.08), rgba(249,250,251,1));
+  border-radius: 0.5rem 0.5rem 0 0;
+  overflow: hidden;
+}
+.explore-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.explore-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+.explore-card-body {
+  padding: 0.75rem;
+}
+.explore-card-title {
+  font-size: 1rem;
+  color: #111827;
+  margin: 0 0 0.25rem;
+}
+.explore-card-meta {
+  color: #374151;
+  font-size: 0.875rem;
+  margin: 0 0 0.5rem;
+}
+.explore-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.explore-empty, .explore-error, .explore-loading {
+  padding: 1rem;
+  text-align: center;
+  color: #374151;
+}
+.explore-loadmore {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}

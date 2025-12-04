@@ -2,11 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
 import HealthService from '../../services/healthService';
+import { isEnabled } from '../../flags/featureFlags';
+
+const FEATURE_EXPLORE = 'FEATURE_EXPLORE';
 
 // PUBLIC_INTERFACE
 export default function Header() {
   /** Header with app title, nav links, theme toggle, and backend health status indicator */
   const { theme, toggleTheme } = useTheme();
+  const showExplore = isEnabled(FEATURE_EXPLORE);
 
   const linkStyle = ({ isActive }) => ({
     position: 'relative',
@@ -30,21 +34,19 @@ export default function Header() {
       if (!mounted) return;
       const text = res.ok ? 'Online' : 'Offline';
       setStatus({ ok: res.ok, text });
-      // Update live region text content for SRs
       if (liveRef.current) {
         liveRef.current.textContent = `Backend status: ${text}`;
       }
     }
-    // initial check and a lightweight periodic check
     check();
     const t = setInterval(check, 30000);
     return () => { mounted = false; clearInterval(t); };
   }, []);
 
   const dotStyle = useMemo(() => {
-    let bg = '#CBD5E1'; // neutral for unknown
-    if (status.ok === true) bg = '#10B981'; // green
-    if (status.ok === false) bg = '#EF4444'; // red
+    let bg = '#CBD5E1';
+    if (status.ok === true) bg = '#10B981';
+    if (status.ok === false) bg = '#EF4444';
     return {
       width: 10,
       height: 10,
@@ -75,7 +77,6 @@ export default function Header() {
             <strong style={{ fontSize: 'var(--text-xl)' }}>Travel Planner Pro</strong>
           </Link>
 
-          {/* Accessible health indicator with title and live region */}
           <div
             role="status"
             aria-live="polite"
@@ -106,6 +107,13 @@ export default function Header() {
                 Dashboard
               </NavLink>
             </li>
+            {showExplore && (
+              <li>
+                <NavLink to="/explore" style={linkStyle} aria-current={({ isActive }) => (isActive ? 'page' : undefined)}>
+                  Explore
+                </NavLink>
+              </li>
+            )}
             <li>
               <NavLink to="/trips" style={linkStyle} aria-current={({ isActive }) => (isActive ? 'page' : undefined)}>
                 Trips

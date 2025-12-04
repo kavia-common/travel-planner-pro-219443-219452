@@ -103,3 +103,11 @@ export const env = (() => {
 })();
 
 export default env;
+
+/**
+ * PUBLIC_INTERFACE
+ * Returns the API base URL for HTTP services.
+ */
+export function getApiBaseUrl() {
+  return env.httpBase || '';
+}
