@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Button from '../common/Button';
 
 // PUBLIC_INTERFACE
-export default function ItineraryItem({ item, onEdit, onRemove }) {
+function ItineraryItem({ item, onEdit, onRemove }) {
   /** Single itinerary item row. */
   if (!item) return null;
   return (
@@ -21,3 +21,5 @@ export default function ItineraryItem({ item, onEdit, onRemove }) {
     </div>
   );
 }
+
+export default memo(ItineraryItem);

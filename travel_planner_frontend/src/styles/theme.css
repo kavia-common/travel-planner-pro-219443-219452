@@ -6,7 +6,7 @@
   --color-primary-500: #14B8A6; /* teal-500 */
   --color-primary-400: #2DD4BF; /* teal-400 */
   --color-secondary: #FB7185; /* rose-400 as coral accent */
-  --color-error: #DC2626; /* red-600 for stronger contrast */
+  --color-error: #B91C1C; /* red-700 for stronger contrast */
   --color-success: #0EA5A4; /* teal-600, harmonious success */
 
   /* Base surfaces */
@@ -16,9 +16,9 @@
   --color-text: #0B1220; /* deep slate for 4.5:1 on surfaces */
 
   /* Derived */
-  --color-muted: #6B7280; /* gray-500 */
-  --color-border: #E2E8F0; /* gray-200/300 blend */
-  --color-border-strong: #CBD5E1; /* slate-300 */
+  --color-muted: #475569; /* slate-600 for AA on light bg */
+  --color-border: #CBD5E1; /* slate-300 */
+  --color-border-strong: #94A3B8; /* slate-400 */
 
   /* Radii */
   --radius-xs: 4px;
@@ -57,7 +57,12 @@
     radial-gradient(900px 500px at 90% 0%, rgba(251,113,133,0.16), transparent 55%);
 
   /* Focus ring with accessible contrast on both modes */
-  --focus-ring: 0 0 0 3px rgba(20,184,166,0.48);
+  --focus-ring: 0 0 0 3px rgba(20,184,166,0.65);
+  --focus-ring-strong: 0 0 0 3px rgba(251,113,133,0.7);
+
+  /* Links */
+  --link-color: #0F766E;
+  --link-hover: #115E59;
 
   /* Typography scale */
   --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
@@ -75,7 +80,7 @@
   --color-surface: #0E1519;    /* dark blue-green */
   --color-surface-2: #0B1114;
   --color-text: #E5F3F1;       /* very light teal-gray */
-  --color-muted: #9AB7B3;      /* muted teal-gray */
+  --color-muted: #B9D5D1;      /* lighter teal-gray for clarity */
   --color-border: #152128;     /* deep teal-gray for outlines */
   --color-border-strong: #1F2E35;
 
@@ -89,7 +94,11 @@
   --shadow-md: 0 2px 6px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35);
   --shadow-lg: 0 10px 30px rgba(0,0,0,0.55), 0 4px 10px rgba(0,0,0,0.42);
 
-  --focus-ring: 0 0 0 3px rgba(20,184,166,0.55);
+  --focus-ring: 0 0 0 3px rgba(20,184,166,0.75);
+  --focus-ring-strong: 0 0 0 3px rgba(251,113,133,0.75);
+
+  --link-color: #2DD4BF;
+  --link-hover: #14B8A6;
 }
 
 /* Base Resets + Background */
@@ -147,6 +156,10 @@ h3 { font-size: var(--text-lg); font-weight: 700; }
 a, button {
   transition: var(--transition-fast);
 }
+a { color: var(--link-color); }
+a:hover { color: var(--link-hover); }
+a:focus-visible { box-shadow: var(--focus-ring-strong); border-radius: 6px; }
+
 button:hover, a.button:hover {
   transform: translateY(-1px);
   filter: saturate(1.05);

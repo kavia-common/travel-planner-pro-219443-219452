@@ -37,12 +37,28 @@ export default function Header() {
             <strong style={{ fontSize: 'var(--text-xl)' }}>Travel Planner Pro</strong>
           </Link>
         </div>
-        <nav aria-label="Primary">
+        <nav role="navigation" aria-label="Primary">
           <ul className="flex items-center gap-4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            <li><NavLink to="/" end style={linkStyle}>Dashboard</NavLink></li>
-            <li><NavLink to="/trips" style={linkStyle}>Trips</NavLink></li>
-            <li><NavLink to="/calendar" style={linkStyle}>Calendar</NavLink></li>
-            <li><NavLink to="/settings" style={linkStyle}>Settings</NavLink></li>
+            <li>
+              <NavLink to="/" end style={linkStyle} aria-current={({ isActive }) => (isActive ? 'page' : undefined)}>
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/trips" style={linkStyle} aria-current={({ isActive }) => (isActive ? 'page' : undefined)}>
+                Trips
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/calendar" style={linkStyle} aria-current={({ isActive }) => (isActive ? 'page' : undefined)}>
+                Calendar
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/settings" style={linkStyle} aria-current={({ isActive }) => (isActive ? 'page' : undefined)}>
+                Settings
+              </NavLink>
+            </li>
           </ul>
         </nav>
         <button

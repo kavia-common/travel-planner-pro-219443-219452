@@ -52,11 +52,17 @@ export default function Sidebar() {
       <div className="mb-4 text-muted" style={{ fontWeight: 700, fontSize: 'var(--text-xs)', letterSpacing: 0.6 }}>
         NAVIGATION
       </div>
-      <nav>
+      <nav role="navigation" aria-label="Sidebar">
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
           {links.map((l) => (
             <li key={l.to}>
-              <NavLink to={l.to} end={l.end} className="transition-base" style={linkStyle}>
+              <NavLink
+                to={l.to}
+                end={l.end}
+                className="transition-base"
+                style={linkStyle}
+                aria-current={({ isActive }) => (isActive ? 'page' : undefined)}
+              >
                 <span style={{ marginRight: 8 }} aria-hidden>{l.icon}</span>
                 {l.label}
               </NavLink>

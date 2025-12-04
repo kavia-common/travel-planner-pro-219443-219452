@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import './App.css';
 import Header from './components/common/Header';
 import Sidebar from './components/common/Sidebar';
@@ -6,11 +6,72 @@ import Card from './components/common/Card';
 import Button from './components/common/Button';
 import { Routes, Route } from 'react-router-dom';
 import { useTheme } from './hooks/useTheme';
-import Dashboard from './pages/Dashboard';
-import Trips from './pages/Trips';
-import TripDetails from './pages/TripDetails';
-import Calendar from './pages/Calendar';
-import Settings from './pages/Settings';
+import { env } from './config/env';
+
+// Lazy load main pages for faster initial paint (no restructuring required)
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Trips = lazy(() => import('./pages/Trips'));
+const TripDetails = lazy(() => import('./pages/TripDetails'));
+const Calendar = lazy(() => import('./pages/Calendar'));
+const Settings = lazy(() => import('./pages/Settings'));
+
+function EnvBadge() {
+  if (env.isProd) return null;
+  return (
+    <div
+      aria-live="polite"
+      className="transition-base"
+      style={{
+        position: 'fixed',
+        bottom: 8,
+        right: 8,
+        zIndex: 250,
+        fontSize: 12,
+        padding: '6px 10px',
+        borderRadius: 'var(--radius-sm)',
+        border: '1px solid var(--color-border)',
+        background: 'var(--color-surface)',
+        color: 'var(--color-text)',
+        boxShadow: 'var(--shadow-sm)',
+        opacity: 0.9,
+      }}
+    >
+      {env.nodeEnv} • log: {env.logLevel}
+    </div>
+  );
+}
+
+// Skip to content link for keyboard users
+function SkipToContent() {
+  return (
+    <a
+      href="#main-content"
+      className="transition-base"
+      style={{
+        position: 'absolute',
+        left: '-999px',
+        top: 0,
+        background: 'var(--color-surface)',
+        color: 'var(--color-text)',
+        border: '1px solid var(--color-border)',
+        padding: '8px 12px',
+        borderRadius: 'var(--radius-sm)',
+      }}
+      onFocus={(e) => {
+        e.currentTarget.style.left = '8px';
+        e.currentTarget.style.top = '8px';
+        e.currentTarget.style.boxShadow = 'var(--focus-ring)';
+      }}
+      onBlur={(e) => {
+        e.currentTarget.style.left = '-999px';
+        e.currentTarget.style.top = '0';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      Skip to main content
+    </a>
+  );
+}
 
 // PUBLIC_INTERFACE
 function App() {
@@ -19,30 +80,40 @@ function App() {
 
   return (
     <div className="app-shell">
+      <SkipToContent />
       <Header />
       <div className="main-area bg-hero">
         <div className="layout-row">
           <Sidebar />
-          <main aria-label="Main content" className="transition-base" style={{ minHeight: '60vh' }}>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/trips" element={<Trips />} />
-              <Route path="/trips/:tripId" element={<TripDetails />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/settings" element={<Settings />} />
-              {/* Fallback: simple home placeholder (should rarely hit) */}
-              <Route
-                path="*"
-                element={
-                  <Card title="Not found" subtitle="The page you requested does not exist">
-                    <div className="text-muted">Use the navigation above to find your way.</div>
-                  </Card>
-                }
-              />
-            </Routes>
+          <main id="main-content" role="main" aria-label="Main content" className="transition-base" style={{ minHeight: '60vh' }}>
+            <Suspense
+              fallback={
+                <Card title="Loading" subtitle="Preparing your experience">
+                  <div className="text-muted">Loading page…</div>
+                </Card>
+              }
+            >
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/trips" element={<Trips />} />
+                <Route path="/trips/:tripId" element={<TripDetails />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/settings" element={<Settings />} />
+                {/* Fallback: simple home placeholder (should rarely hit) */}
+                <Route
+                  path="*"
+                  element={
+                    <Card title="Not found" subtitle="The page you requested does not exist">
+                      <div className="text-muted">Use the navigation above to find your way.</div>
+                    </Card>
+                  }
+                />
+              </Routes>
+            </Suspense>
           </main>
         </div>
       </div>
+      <EnvBadge />
     </div>
   );
 }

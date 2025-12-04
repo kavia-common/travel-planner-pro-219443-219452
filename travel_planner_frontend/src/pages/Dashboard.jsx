@@ -54,14 +54,14 @@ export default function Dashboard() {
       </section>
 
       <Card title="Upcoming Highlights" subtitle="A snapshot of your plans">
-        {loading && <div className="text-muted">Loading your trips…</div>}
-        {error && (
+        {loading && <div className="text-muted" aria-live="polite">Loading your trips…</div>}
+        {!!error && (
           <div className="text-muted" role="alert" style={{ color: 'var(--color-error)' }}>
-            Unable to load trips.
+            Unable to load trips. Please try again.
           </div>
         )}
         {!loading && !error && trips.length === 0 && (
-          <div className="text-muted" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="text-muted" aria-live="polite" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <img src="/assets/empty-travel.png" alt="" aria-hidden style={{ width: 28, height: 28, opacity: 0.9 }} />
             No upcoming items. Start by adding a trip.
           </div>

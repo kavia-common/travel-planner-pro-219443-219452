@@ -16,7 +16,7 @@ export default function CalendarView({ items = [] }) {
   }
 
   return (
-    <div style={{ display: 'grid', gap: 12 }}>
+    <div role="region" aria-label="Calendar items grouped by date" style={{ display: 'grid', gap: 12 }}>
       {dates.map((d) => (
         <div key={d} className="surface rounded-md" style={{ border: '1px solid var(--color-border)' }}>
           <div className="p-4" style={{ borderBottom: '1px solid var(--color-border)', fontWeight: 600 }}>

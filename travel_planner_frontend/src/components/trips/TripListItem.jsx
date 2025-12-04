@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Button from '../common/Button';
 
 // PUBLIC_INTERFACE
-export default function TripListItem({ trip, onView, onEdit, onDelete }) {
+function TripListItem({ trip, onView, onEdit, onDelete }) {
   /** A single trip row with actions. */
   if (!trip) return null;
   return (
@@ -21,3 +21,5 @@ export default function TripListItem({ trip, onView, onEdit, onDelete }) {
     </div>
   );
 }
+
+export default memo(TripListItem);

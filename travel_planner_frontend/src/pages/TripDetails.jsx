@@ -81,14 +81,14 @@ export default function TripDetails() {
           </div>
         }
       >
-        {loading && <div className="text-muted">Loading itinerary…</div>}
-        {error && (
+        {loading && <div className="text-muted" aria-live="polite">Loading itinerary…</div>}
+        {!!error && (
           <div className="text-muted" role="alert" style={{ color: 'var(--color-error)' }}>
-            Failed to load itinerary.
+            Failed to load itinerary. Please try again.
           </div>
         )}
         {!loading && !error && items.length === 0 && (
-          <div className="text-muted">No itinerary items yet. Add your first activity.</div>
+          <div className="text-muted" aria-live="polite">No itinerary items yet. Add your first activity.</div>
         )}
         {!loading && !error && items.length > 0 && (
           <ItineraryView

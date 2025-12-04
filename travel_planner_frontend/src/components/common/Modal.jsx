@@ -77,13 +77,16 @@ export default function Modal({ open, onClose, title = 'Dialog', children, ariaD
 
   if (!open) return null;
 
+  const labelledId = ariaLabelledBy || 'modal-title';
+  const describedId = ariaDescribedBy || 'modal-desc';
+
   return (
     <div
       ref={overlayRef}
       role="dialog"
       aria-modal="true"
-      aria-labelledby={ariaLabelledBy}
-      aria-describedby={ariaDescribedBy}
+      aria-labelledby={labelledId}
+      aria-describedby={describedId}
       className="transition-base"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose?.();
@@ -105,7 +108,7 @@ export default function Modal({ open, onClose, title = 'Dialog', children, ariaD
         role="document"
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <h2 id={ariaLabelledBy} style={{ margin: 0, fontSize: 'var(--text-xl)' }}>{title}</h2>
+          <h2 id={labelledId} style={{ margin: 0, fontSize: 'var(--text-xl)' }}>{title}</h2>
           <button
             onClick={onClose}
             aria-label="Close dialog"
@@ -122,7 +125,7 @@ export default function Modal({ open, onClose, title = 'Dialog', children, ariaD
             ✕
           </button>
         </div>
-        <div id={ariaDescribedBy}>{children}</div>
+        <div id={describedId}>{children}</div>
       </div>
     </div>
   );
