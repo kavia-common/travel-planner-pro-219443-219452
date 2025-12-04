@@ -31,7 +31,7 @@ export const env = (() => {
   // Websocket URL
   const wsBase = (REACT_APP_WS_URL && REACT_APP_WS_URL.trim()) || '';
 
-  // Healthcheck path, default to /health
+  // Healthcheck path, default to /health (used by HealthService and UI indicators)
   const healthPath = (REACT_APP_HEALTHCHECK_PATH && REACT_APP_HEALTHCHECK_PATH.trim()) || '/health';
 
   // Log level with default "info"

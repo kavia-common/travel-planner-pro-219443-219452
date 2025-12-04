@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
+import HealthService from '../../services/healthService';
 
 // PUBLIC_INTERFACE
 export default function Header() {
-  /** Header with app title, nav links, and theme toggle */
+  /** Header with app title, nav links, theme toggle, and backend health status indicator */
   const { theme, toggleTheme } = useTheme();
 
   const linkStyle = ({ isActive }) => ({
@@ -17,6 +18,43 @@ export default function Header() {
     border: isActive ? '1px solid var(--color-primary-600)' : '1px solid var(--color-border)',
     boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
   });
+
+  // Health status state with polite ARIA updates
+  const [status, setStatus] = useState({ ok: null, text: 'Checking…' });
+  const liveRef = useRef(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function check() {
+      const res = await HealthService.pingHealth();
+      if (!mounted) return;
+      const text = res.ok ? 'Online' : 'Offline';
+      setStatus({ ok: res.ok, text });
+      // Update live region text content for SRs
+      if (liveRef.current) {
+        liveRef.current.textContent = `Backend status: ${text}`;
+      }
+    }
+    // initial check and a lightweight periodic check
+    check();
+    const t = setInterval(check, 30000);
+    return () => { mounted = false; clearInterval(t); };
+  }, []);
+
+  const dotStyle = useMemo(() => {
+    let bg = '#CBD5E1'; // neutral for unknown
+    if (status.ok === true) bg = '#10B981'; // green
+    if (status.ok === false) bg = '#EF4444'; // red
+    return {
+      width: 10,
+      height: 10,
+      borderRadius: '50%',
+      background: bg,
+      border: '1px solid var(--color-border)',
+      boxShadow: 'var(--shadow-sm)',
+      display: 'inline-block',
+    };
+  }, [status.ok]);
 
   return (
     <header
@@ -36,7 +74,31 @@ export default function Header() {
           <Link to="/" style={{ textDecoration: 'none', color: 'var(--color-text)' }}>
             <strong style={{ fontSize: 'var(--text-xl)' }}>Travel Planner Pro</strong>
           </Link>
+
+          {/* Accessible health indicator with title and live region */}
+          <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="transition-base"
+            title={`Backend status: ${status.text}`}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '4px 8px',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--color-surface)',
+            }}
+          >
+            <span aria-hidden style={dotStyle} />
+            <span className="text-muted" style={{ fontSize: 12 }} ref={liveRef}>
+              Backend status: {status.text}
+            </span>
+          </div>
         </div>
+
         <nav role="navigation" aria-label="Primary">
           <ul className="flex items-center gap-4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             <li>
