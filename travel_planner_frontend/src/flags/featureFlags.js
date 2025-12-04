@@ -1,14 +1,30 @@
 export const FEATURE_FLAGS = (() => {
-  // Parse JSON from REACT_APP_FEATURE_FLAGS if present: e.g., {"TRIP_WIZARD": true}
+  // Parse JSON from REACT_APP_FEATURE_FLAGS if present: e.g., {"TRIP_WIZARD": true, "FEATURE_BUDGET": false}
   let flags = {};
   try {
     const raw = process.env.REACT_APP_FEATURE_FLAGS;
     if (raw) {
-      flags = JSON.parse(raw);
+      // Support both JSON and simple comma-separated form (key or key=value)
+      if (raw.trim().startsWith('{')) {
+        flags = JSON.parse(raw);
+      } else {
+        const parsed = {};
+        raw.split(',').map(s => s.trim()).filter(Boolean).forEach(pair => {
+          if (pair.includes('=')) {
+            const [k, v] = pair.split('=');
+            const val = String(v).toLowerCase();
+            parsed[k] = ['true','1','yes','on','enabled'].includes(val) ? true :
+                        ['false','0','no','off','disabled'].includes(val) ? false : v;
+          } else {
+            parsed[pair] = true;
+          }
+        });
+        flags = parsed;
+      }
     }
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.warn('Invalid REACT_APP_FEATURE_FLAGS JSON, using defaults.');
+    console.warn('Invalid REACT_APP_FEATURE_FLAGS value, using defaults.');
   }
   // Defaults for known features in this app
   const defaults = {
@@ -19,13 +35,25 @@ export const FEATURE_FLAGS = (() => {
     ITINERARY_CALENDAR: true,
     PACKING_LIST: true,
   };
+
+  // Merge with overrides from sessionStorage (if any)
+  try {
+    const raw = sessionStorage.getItem('FEATURE_FLAGS_OVERRIDES');
+    if (raw) {
+      const overrides = JSON.parse(raw);
+      Object.assign(defaults, overrides);
+    }
+  } catch {
+    // ignore
+  }
+
   return {
     ...defaults,
     ...flags,
   };
 })();
 
-// PUBLIC_INTERFACE
+ // PUBLIC_INTERFACE
 export function isFeatureEnabled(key) {
   /** Check if a feature flag is enabled by key. Defaults to false if unknown. */
   return !!FEATURE_FLAGS[key];
@@ -38,23 +66,6 @@ export function isEnabled(key) {
 }
 
 /**
- * Expose named constants and helpers for legacy imports
- */
-export const FEATURE_NOTIFICATIONS = FEATURE_FLAGS.FEATURE_NOTIFICATIONS;
-export const FEATURE_BUDGET = FEATURE_FLAGS.FEATURE_BUDGET;
-export const FEATURE_EXPLORE = FEATURE_FLAGS.FEATURE_EXPLORE;
-
-/**
- * PUBLIC_INTERFACE
- * experimentsOn - returns true if experiments are globally enabled via env.
- * Accepts string values like "true", "1", "yes" (case-insensitive).
- */
-export function experimentsOn() {
-  const v = String(process.env.REACT_APP_EXPERIMENTS_ENABLED || '').toLowerCase().trim();
-  return v === 'true' || v === '1' || v === 'yes' || v === 'on';
-}
-
-/**
  * PUBLIC_INTERFACE
  * allFlags - returns a snapshot of all feature flags (read-only usage).
  */
@@ -62,15 +73,31 @@ export function allFlags() {
   return { ...FEATURE_FLAGS };
 }
 
+// Provide named exports for compatibility with existing imports
+export const FEATURE_NOTIFICATIONS = FEATURE_FLAGS.FEATURE_NOTIFICATIONS;
+export const FEATURE_BUDGET = FEATURE_FLAGS.FEATURE_BUDGET;
+export const FEATURE_EXPLORE = FEATURE_FLAGS.FEATURE_EXPLORE;
+export const ITINERARY_CALENDAR = FEATURE_FLAGS.ITINERARY_CALENDAR;
+export const PACKING_LIST = FEATURE_FLAGS.PACKING_LIST;
+export const TRIP_WIZARD = FEATURE_FLAGS.TRIP_WIZARD;
+
+/**
+ * PUBLIC_INTERFACE
+ * experimentsOn - returns true if experiments are globally enabled via env.
+ * Accepts string values like "true", "1", "yes", "on".
+ */
+export function experimentsOn() {
+  const v = String(process.env.REACT_APP_EXPERIMENTS_ENABLED || '').toLowerCase().trim();
+  return v === 'true' || v === '1' || v === 'yes' || v === 'on' || v === 'enabled';
+}
+
 /**
  * PUBLIC_INTERFACE
  * setOverride - sets/overrides a feature flag value at runtime (session-scoped).
- * This is useful for QA or temporary toggles in the client without redeploy.
  */
 export function setOverride(key, value) {
   FEATURE_FLAGS[key] = !!value;
   try {
-    // persist in sessionStorage so navigation keeps the override during the session
     const raw = sessionStorage.getItem('FEATURE_FLAGS_OVERRIDES');
     const current = raw ? JSON.parse(raw) : {};
     current[key] = !!value;

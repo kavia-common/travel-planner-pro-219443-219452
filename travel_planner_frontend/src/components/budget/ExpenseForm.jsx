@@ -1,88 +1,93 @@
-import React, { useEffect, useState } from 'react';
-import Modal from '../common/Modal';
+import React, { useMemo, useState } from 'react';
+import Button from '../common/Button';
+import { getSupportedCurrencies } from '../../services/currencyService';
+
+const DEFAULT_CATEGORIES = ['Transport', 'Accommodation', 'Food', 'Activities', 'Shopping', 'Fees', 'Misc'];
 
 /**
- * Modal form for creating or editing an expense.
+ * PUBLIC_INTERFACE
+ * ExpenseForm
+ * Props:
+ * - initial: optional expense {id,date,description,category,amount,currency}
+ * - onSave(payload)
+ * - onCancel()
  */
+const ExpenseForm = ({ initial, onSave, onCancel }) => {
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const [date, setDate] = useState(initial?.date ? initial.date.slice(0,10) : today);
+  const [description, setDescription] = useState(initial?.description || '');
+  const [category, setCategory] = useState(initial?.category || DEFAULT_CATEGORIES[0]);
+  const [amount, setAmount] = useState(initial?.amount ?? '');
+  const [currency, setCurrency] = useState(initial?.currency || 'USD');
+  const [error, setError] = useState('');
+  const currencies = getSupportedCurrencies();
 
-// PUBLIC_INTERFACE
-export default function ExpenseForm({ open, onClose, onSubmit, initialValue }) {
-  /** Form for expense create/edit
-   * Props:
-   *  - open: boolean
-   *  - onClose: fn()
-   *  - onSubmit: fn(formValue)
-   *  - initialValue: expense object when editing
-   */
-  const [form, setForm] = useState({
-    title: '',
-    amount: '',
-    category: '',
-    date: '',
-    notes: '',
-    currency: 'USD',
-  });
-
-  useEffect(() => {
-    if (open) {
-      setForm({
-        title: initialValue?.title || '',
-        amount: (initialValue?.amount ?? '') === '' ? '' : Number(initialValue.amount),
-        category: initialValue?.category || '',
-        date: initialValue?.date ? new Date(initialValue.date).toISOString().slice(0, 10) : '',
-        notes: initialValue?.notes || '',
-        currency: initialValue?.currency || 'USD',
-      });
-    }
-  }, [open, initialValue]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: name === 'amount' ? value.replace(/[^\d.]/g, '') : value }));
+  const validate = () => {
+    if (!description.trim()) return 'Description is required';
+    if (!category) return 'Category is required';
+    const val = Number(amount);
+    if (!Number.isFinite(val) || val <= 0) return 'Amount must be a positive number';
+    if (!currency) return 'Currency is required';
+    if (!date) return 'Date is required';
+    return '';
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const payload = {
-      ...form,
-      amount: Number(form.amount || 0),
-      date: form.date ? new Date(form.date).toISOString() : null,
-    };
-    onSubmit?.(payload);
+    const err = validate();
+    if (err) {
+      setError(err);
+      return;
+    }
+    setError('');
+    onSave({
+      date: new Date(date).toISOString(),
+      description: description.trim(),
+      category,
+      amount: Number(amount),
+      currency,
+    });
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose} ariaLabel="Expense form">
-      <form onSubmit={handleSubmit}>
-        <h3 style={{ marginTop: 0 }}>{initialValue ? 'Edit Expense' : 'Add Expense'}</h3>
-
-        <label htmlFor="title">Title</label>
-        <input id="title" name="title" type="text" required value={form.title} onChange={handleChange} />
-
-        <label htmlFor="amount">Amount</label>
-        <input id="amount" name="amount" type="number" step="0.01" min="0" required value={form.amount} onChange={handleChange} />
-
-        <label htmlFor="currency">Currency</label>
-        <input id="currency" name="currency" type="text" value={form.currency} onChange={handleChange} />
-
-        <label htmlFor="category">Category</label>
-        <input id="category" name="category" type="text" value={form.category} onChange={handleChange} placeholder="e.g., Food, Transport" />
-
-        <label htmlFor="date">Date</label>
-        <input id="date" name="date" type="date" value={form.date} onChange={handleChange} />
-
-        <label htmlFor="notes">Notes</label>
-        <textarea id="notes" name="notes" rows="3" value={form.notes} onChange={handleChange} />
-
-        <div style={{ display: 'flex', gap: 8, marginTop: 12, justifyContent: 'flex-end' }}>
-          <button type="button" onClick={onClose} style={{ background: 'transparent', border: '1px solid #374151', borderRadius: 8, padding: '6px 12px' }}>
-            Cancel
-          </button>
-          <button type="submit" style={{ background: 'var(--primary, #2563EB)', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 12px' }}>
-            {initialValue ? 'Save' : 'Add'}
-          </button>
+    <form onSubmit={handleSubmit} className="bg-white rounded-md shadow-sm p-3 border">
+      {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
+        <div className="md:col-span-1">
+          <label className="block text-xs text-gray-600 mb-1">Date</label>
+          <input type="date" value={date} onChange={(e)=>setDate(e.target.value)} className="w-full p-2 border rounded-md" />
         </div>
-      </form>
-    </Modal>
+        <div className="md:col-span-2">
+          <label className="block text-xs text-gray-600 mb-1">Description</label>
+          <input type="text" value={description} onChange={(e)=>setDescription(e.target.value)} className="w-full p-2 border rounded-md" placeholder="e.g., Taxi from airport" />
+        </div>
+        <div className="md:col-span-1">
+          <label className="block text-xs text-gray-600 mb-1">Category</label>
+          <select value={category} onChange={(e)=>setCategory(e.target.value)} className="w-full p-2 border rounded-md">
+            {DEFAULT_CATEGORIES.map((c)=> <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div className="md:col-span-1">
+          <label className="block text-xs text-gray-600 mb-1">Amount</label>
+          <input type="number" min="0" step="0.01" value={amount} onChange={(e)=>setAmount(e.target.value)} className="w-full p-2 border rounded-md" placeholder="0.00" />
+        </div>
+        <div className="md:col-span-1">
+          <label className="block text-xs text-gray-600 mb-1">Currency</label>
+          <select value={currency} onChange={(e)=>setCurrency(e.target.value)} className="w-full p-2 border rounded-md">
+            {currencies.map((c)=> <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center gap-2">
+        <Button type="submit" variant="primary" style={{ backgroundColor: '#2563EB' }}>
+          {initial ? 'Update' : 'Add'}
+        </Button>
+        <Button type="button" variant="secondary" onClick={onCancel} style={{ backgroundColor: '#F59E0B' }}>
+          Cancel
+        </Button>
+      </div>
+    </form>
   );
-}
+};
+
+export default ExpenseForm;
