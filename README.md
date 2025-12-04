@@ -8,6 +8,10 @@ A web application that helps users plan their trips, organize itineraries, and m
   - React-based web UI
   - See travel_planner_frontend/README.md for full setup, environment variables, architecture, and development instructions.
 
+## Theme
+
+The frontend applies the Ocean Professional theme via src/theme/ocean.css and a global import in src/index.css. See the frontend README for variable overrides and utility class references.
+
 ## New: Packing List (feature flagged)
 
 The frontend includes a categorized Packing List with per-category and overall progress.

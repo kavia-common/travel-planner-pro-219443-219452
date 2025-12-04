@@ -1,52 +1,37 @@
 import React from 'react';
 
-// PUBLIC_INTERFACE
-export default function Button({ children, variant = 'primary', onClick, type = 'button', disabled = false, ariaLabel }) {
-  /** A themed button supporting primary, secondary, and ghost variants with improved motion and focus states */
-  const base = {
-    borderRadius: 'var(--radius-sm)',
-    padding: '10px 14px',
-    fontWeight: 700,
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    transition: 'var(--transition-base)',
-    border: '1px solid var(--color-border)',
-    background: 'var(--color-surface)',
-    color: 'var(--color-text)',
-    opacity: disabled ? 0.6 : 1,
-    boxShadow: 'var(--shadow-sm)',
-  };
-
-  const variants = {
-    primary: {
-      background: 'linear-gradient(180deg, var(--color-primary-500), var(--color-primary-600))',
-      border: '1px solid var(--color-primary-600)',
-      color: '#fff',
-    },
-    secondary: {
-      background: 'linear-gradient(180deg, rgba(251,113,133,0.95), var(--color-secondary))',
-      border: '1px solid var(--color-secondary)',
-      color: 'var(--color-text)',
-    },
-    ghost: {
-      background: 'transparent',
-      border: '1px solid var(--color-border)',
-      color: 'var(--color-text)',
-    },
-  };
-
-  const style = { ...base, ...(variants[variant] || variants.primary) };
+/**
+ * PUBLIC_INTERFACE
+ * A themed button component with Ocean Professional styles.
+ * Props:
+ * - variant: 'primary' | 'secondary' | 'ghost'
+ * - type: button type
+ * - className: additional classes
+ * - disabled: boolean
+ * - onClick: click handler
+ * - ariaLabel: optional aria-label
+ */
+const Button = ({ children, onClick, type = 'button', className = '', disabled = false, variant = 'primary', ariaLabel }) => {
+  const variantClass =
+    variant === 'primary'
+      ? 'btn-primary'
+      : variant === 'secondary'
+      ? 'btn-secondary'
+      : variant === 'ghost'
+      ? 'btn-ghost'
+      : '';
 
   return (
     <button
       type={type}
       aria-label={ariaLabel}
       onClick={onClick}
+      className={`btn ${variantClass} ${className}`.trim()}
       disabled={disabled}
-      style={style}
-      className="btn-base transition-base"
-      onMouseEnter={() => {}}
     >
       {children}
     </button>
   );
-}
+};
+
+export default Button;

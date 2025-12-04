@@ -1,22 +1,29 @@
 import React from 'react';
 
-// PUBLIC_INTERFACE
-export default function Card({ title, subtitle, children, footer }) {
-  /** A surface card with optional header/subtitle and footer area using polished tokens */
-  return (
-    <section
-      className="surface rounded-md transition-base"
-      style={{ padding: 'var(--space-4)', boxShadow: 'var(--shadow-md)' }}
-      aria-label={title || 'Card'}
-    >
-      {(title || subtitle) && (
-        <header className="mb-4">
-          {title && <h3 style={{ margin: 0, fontSize: 'var(--text-xl)' }}>{title}</h3>}
-          {subtitle && <div className="text-muted" style={{ marginTop: 4, fontSize: 'var(--text-sm)' }}>{subtitle}</div>}
-        </header>
-      )}
-      <div>{children}</div>
-      {footer && <footer className="mt-4">{footer}</footer>}
-    </section>
-  );
-}
+/**
+ * PUBLIC_INTERFACE
+ * Themed Card component with optional header title.
+ * Props:
+ * - title?: string
+ * - subtitle?: string (unused visually here)
+ * - headerRight?: ReactNode
+ * - className?: string
+ */
+const Card = ({ title, children, className = '', headerRight = null, subtitle }) => (
+  <div className={`card ${className}`.trim()} tabIndex={0}>
+    {(title || headerRight) && (
+      <div className="card-header">
+        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px'}}>
+          <div>
+            {title && <h3 className="card-title" style={{ margin: 0 }}>{title}</h3>}
+            {subtitle && <div className="text-muted" style={{ fontSize: 14, marginTop: 4 }}>{subtitle}</div>}
+          </div>
+          {headerRight}
+        </div>
+      </div>
+    )}
+    <div className="card-body">{children}</div>
+  </div>
+);
+
+export default Card;

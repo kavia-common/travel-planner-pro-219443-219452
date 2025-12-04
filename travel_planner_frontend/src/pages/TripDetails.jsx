@@ -1,83 +1,56 @@
-import React, { useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import Card from '../components/common/Card';
+import React, { useState } from 'react';
+import ItineraryView from '../components/itinerary/ItineraryView';
 import CalendarItinerary from '../components/itinerary/CalendarItinerary';
-import { useItinerary } from '../hooks/useItinerary';
+import PackingList from '../components/packing/PackingList';
 import BudgetDashboard from '../components/budget/BudgetDashboard';
-import { isFeatureEnabled } from '../flags/featureFlags';
-import PlacesSearch from '../components/places/PlacesSearch';
+import Card from '../components/common/Card';
 
 /**
  * PUBLIC_INTERFACE
- * TripDetails
- * Displays details of a specific trip with tabs. Shows Itinerary and, if enabled, a Budget tab.
+ * TripDetails page with themed tabs and header.
  */
 const TripDetails = () => {
-  const { id } = useParams();
-  const { itinerary, addItem, updateItem, removeItem } = useItinerary(id);
-
-  const hasBudget = isFeatureEnabled('FEATURE_BUDGET');
-  const hasPlaces = isFeatureEnabled('PLACES_SEARCH');
-  const tabsBase = useMemo(() => ([
-    { key: 'itinerary', label: 'Itinerary' },
-    ...(hasBudget ? [{ key: 'budget', label: 'Budget' }] : []),
-    ...(hasPlaces ? [{ key: 'places', label: 'Places' }] : []),
-  ]), [hasBudget, hasPlaces]);
   const [active, setActive] = useState('itinerary');
 
-  return (
-    <div className="p-4 space-y-4">
-      <Card>
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">Trip Details</h2>
-        <p className="text-sm text-gray-600">Trip ID: {id}</p>
-      </Card>
+  const Tab = ({ id, children }) => (
+    <button
+      className={`tab ${active === id ? 'active' : ''}`}
+      onClick={() => setActive(id)}
+      role="tab"
+      aria-selected={active === id}
+    >
+      {children}
+    </button>
+  );
 
-      <div className="bg-white rounded-md shadow-sm border">
-        <div className="flex gap-2 p-2 border-b overflow-x-auto">
-          {tabsBase.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActive(tab.key)}
-              className={`px-3 py-2 rounded-md text-sm transition ${
-                active === tab.key ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+  return (
+    <div>
+      <div className="card" style={{ marginBottom: '16px' }}>
+        <div className="card-header">
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px'}}>
+            <div>
+              <div className="badge">Active Trip</div>
+              <div style={{ fontWeight: 800, fontSize: '20px', marginTop: 6 }}>Trip Details</div>
+            </div>
+            <div><span className="chip chip--amber">Ocean theme</span></div>
+          </div>
         </div>
-        <div className="p-4">
-          {active === 'itinerary' && (
-            <Card>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Itinerary</h3>
-              <CalendarItinerary
-                tripId={id}
-                itinerary={itinerary}
-                onAdd={addItem}
-                onUpdate={updateItem}
-                onRemove={removeItem}
-              />
-            </Card>
-          )}
-          {hasBudget && active === 'budget' && (
-            <BudgetDashboard tripId={id} />
-          )}
-          {hasPlaces && active === 'places' && (
-            <Card>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Places</h3>
-              <PlacesSearch
-                tripId={id}
-                nearestDate={(() => {
-                  // Best-effort to find nearest itinerary day
-                  const dates = Array.isArray(itinerary) ? itinerary.map(i => i.date).filter(Boolean) : [];
-                  dates.sort();
-                  return dates[0] || new Date().toISOString().slice(0, 10);
-                })()}
-              />
-            </Card>
-          )}
+        <div className="card-body">
+          <div className="tabs" role="tablist" aria-label="Trip Sections">
+            <Tab id="itinerary">Itinerary</Tab>
+            <Tab id="calendar">Calendar</Tab>
+            <Tab id="packing">Packing</Tab>
+            <Tab id="budget">Budget</Tab>
+          </div>
         </div>
       </div>
+
+      <Card>
+        {active === 'itinerary' && <ItineraryView />}
+        {active === 'calendar' && <CalendarItinerary />}
+        {active === 'packing' && <PackingList />}
+        {active === 'budget' && <BudgetDashboard />}
+      </Card>
     </div>
   );
 };

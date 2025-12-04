@@ -1,5 +1,55 @@
 # Travel Planner Frontend
 
+This is the React-based UI for Travel Planner Pro.
+
+## Ocean Professional Theme
+
+The app uses the Ocean Professional theme with centralized CSS variables and utilities.
+
+Palette:
+- Primary: #2563EB
+- Secondary/Amber: #F59E0B
+- Error: #EF4444
+- Background: #f9fafb
+- Surface: #ffffff
+- Text: #111827
+- Gradient: subtle blue to gray tint
+
+Where:
+- Variables and utilities live in src/theme/ocean.css.
+- Globally imported in src/index.css (after any resets).
+
+Utilities:
+- Buttons: .btn, .btn-primary, .btn-secondary, .btn-ghost
+- Inputs: .input, .select
+- Cards: .card, .card-header, .card-body
+- Tabs: .tabs, .tab
+- Badges/Chips: .badge, .chip
+- Progress: .progress > .bar
+- Layout helpers: .grid, .grid-1-2-3
+- Table helpers: .table (with .table-scroll wrapper)
+- Accessibility: focus-visible outlines; prefers-reduced-motion respected
+- Motion: subtle hover/focus transitions at 150–200ms, softened shadows
+
+Responsiveness:
+- .grid-1-2-3 adjusts to 1/2/3 columns at small/medium/large widths.
+- Tabs wrap gracefully; tables can scroll on mobile using .table-scroll.
+
+Override variables by redefining them in a stylesheet loaded after ocean.css:
+
+```css
+:root {
+  --color-primary: #1D4ED8;
+  --radius-md: 12px;
+}
+```
+
+Feature flags for visual verification:
+- REACT_APP_FEATURE_FLAGS=ocean-theme,all-panels
+- REACT_APP_EXPERIMENTS_ENABLED=true
+
+See .env.example for a complete list of variables.
+
 ## Budget Tracking Feature
 
 The app includes a Budget Tracking module (enabled by default) that lets users:
@@ -44,7 +94,7 @@ Feature flag:
 - PLACES_SEARCH (default: true). Can be disabled via REACT_APP_FEATURE_FLAGS.
 
 Provider env vars:
-- REACT_APP_PLACES_PROVIDER=openstreetmap|mapbox|google (default: openstreetmap)
+- REACT_APP_PLACES_PROVIDER=openstreetmap|mapbox|google (default openstreetmap)
 - REACT_APP_NOMINATIM_URL (optional, default https://nominatim.openstreetmap.org)
 - REACT_APP_MAPBOX_TOKEN (optional, for Mapbox provider)
 - REACT_APP_GOOGLE_MAPS_API_KEY (optional, for Google provider - not fully implemented in demo)
@@ -63,7 +113,6 @@ Place variables in a .env file at the project root (or use your CI/CD environmen
 - REACT_APP_NODE_ENV: development | production | test (defaults to development)
 - REACT_APP_NEXT_TELEMETRY_DISABLED: true/false to disable Next telemetry semantics if needed
 - REACT_APP_ENABLE_SOURCE_MAPS: true/false (defaults to true unless explicitly 'false')
-- REACT_APP_PORT: Port hint (for container setups; CRA typically uses 3000 at dev)
 - REACT_APP_TRUST_PROXY: true/false (normalizes to boolean)
 - REACT_APP_LOG_LEVEL: error | warn | info | debug (default info)
 - REACT_APP_HEALTHCHECK_PATH: HTTP healthcheck path (default /health)
@@ -109,16 +158,13 @@ REACT_APP_EXCHANGE_RATES_URL=https://api.exchangerate.host/latest
 REACT_APP_EXCHANGE_RATES_API_KEY=
 ```
 
-## Usage
+## Development
 
-- Navigate to a specific trip to view Trip Details.
-- Tabs include Itinerary and, when FEATURE_BUDGET is enabled, a Budget tab.
-- In Budget:
-  - Select a base currency for display.
-  - Add expenses with date, description, category, amount, and currency.
-  - Review totals and per-category breakdown.
-  - Set a planned budget to track remaining amount.
-- If the backend provides budget endpoints (see above), the app uses them. Otherwise, it persists budget data in localStorage keyed by tripId.
+- npm start
+- npm test
+- npm run build
 
----
-For additional architecture, testing, and theme details, see the existing sections below in this file.
+## Accessibility & Motion
+
+- Focus states are visible with high-contrast outlines (focus-visible).
+- Motion is subtle (150–200ms) and respects prefers-reduced-motion.
