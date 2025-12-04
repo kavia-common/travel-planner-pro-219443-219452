@@ -1,14 +1,22 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useStore, actionCreators } from '../state/store';
 import { TripsService } from '../services/tripsService';
+import wsClient from '../services/ws';
+import { env } from '../config/env';
+import { isEnabled } from '../flags/featureFlags';
 
 /**
  * PUBLIC_INTERFACE
  * useTrips centralizes trips operations, syncing the global store with the TripsService.
+ * Adds optional WebSocket live updates when:
+ *  - env.wsBase is set (REACT_APP_WS_URL) AND
+ *  - feature flag 'liveUpdates' is enabled.
+ * Falls back to periodic polling when WS is unavailable.
  */
 export function useTrips() {
   const { state, dispatch } = useStore();
   const keyList = 'trips.list';
+  const pollTimer = useRef(null);
 
   const setLoading = (v) => dispatch(actionCreators.setLoading(keyList, v));
   const setError = (e) => dispatch(actionCreators.setError(keyList, e));
@@ -74,6 +82,52 @@ export function useTrips() {
   const selectTrip = useCallback((tripId) => {
     dispatch(actionCreators.setSelectedTrip(tripId));
   }, [dispatch]);
+
+  // Optional WS subscription and polling fallback
+  useEffect(() => {
+    const enableWs = !!env.wsBase && isEnabled('liveUpdates');
+    let unsubscribe = null;
+
+    // Always ensure at least one polling on mount
+    loadTrips().catch(() => {});
+
+    // Setup periodic polling (fallback or alongside WS as safety)
+    function startPolling() {
+      if (pollTimer.current) return;
+      pollTimer.current = setInterval(() => {
+        loadTrips().catch(() => {});
+      }, 15000); // 15s lightweight polling
+    }
+    function stopPolling() {
+      if (pollTimer.current) {
+        clearInterval(pollTimer.current);
+        pollTimer.current = null;
+      }
+    }
+
+    if (enableWs) {
+      // Start WS client (no-op if already started)
+      wsClient.start();
+      // Subscribe to trips topic
+      unsubscribe = wsClient.subscribe('trips', (msg) => {
+        // Expected events: created|updated|deleted or a payload with full list
+        // If backend provides a delta payload:
+        //  - For simplicity, re-fetch the list to keep logic centralized and consistent
+        loadTrips().catch(() => {});
+      });
+      // Keep a slower safety polling even with WS in case missed messages
+      startPolling();
+    } else {
+      // No WS available: use polling only
+      startPolling();
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+      stopPolling();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadTrips]);
 
   const loading = !!state.loading[keyList];
   const error = state.errors[keyList] || null;

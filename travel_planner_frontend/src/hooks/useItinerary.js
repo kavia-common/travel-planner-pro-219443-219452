@@ -1,14 +1,19 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useStore, actionCreators } from '../state/store';
 import { ItineraryService } from '../services/itineraryService';
+import wsClient from '../services/ws';
+import { env } from '../config/env';
+import { isEnabled } from '../flags/featureFlags';
 
 /**
  * PUBLIC_INTERFACE
  * useItinerary interacts with itineraries per tripId and syncs with the global store.
+ * Adds optional WebSocket subscription per trip and fallback polling.
  */
 export function useItinerary(tripId) {
   const { state, dispatch } = useStore();
   const key = `itinerary.${tripId || 'unknown'}`;
+  const pollTimer = useRef(null);
 
   const setLoading = (v) => dispatch(actionCreators.setLoading(key, v));
   const setError = (e) => dispatch(actionCreators.setError(key, e));
@@ -68,6 +73,51 @@ export function useItinerary(tripId) {
     },
     [tripId, items, dispatch]
   );
+
+  // Optional WS subscription and polling fallback scoped to this trip
+  useEffect(() => {
+    if (!tripId) return undefined;
+
+    const enableWs = !!env.wsBase && isEnabled('liveUpdates');
+    let unsubscribe = null;
+
+    // Prime data once
+    loadItinerary().catch(() => {});
+
+    function startPolling() {
+      if (pollTimer.current) return;
+      pollTimer.current = setInterval(() => {
+        loadItinerary().catch(() => {});
+      }, 15000);
+    }
+    function stopPolling() {
+      if (pollTimer.current) {
+        clearInterval(pollTimer.current);
+        pollTimer.current = null;
+      }
+    }
+
+    if (enableWs) {
+      wsClient.start();
+      // Use per-trip topic convention: itinerary:<tripId>
+      const topic = `itinerary:${tripId}`;
+      unsubscribe = wsClient.subscribe(topic, () => {
+        // On any event, refresh the items to keep consistent
+        loadItinerary().catch(() => {});
+      });
+      // Safety polling even when WS is on
+      startPolling();
+    } else {
+      // No WS: polling only
+      startPolling();
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+      stopPolling();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tripId, loadItinerary]);
 
   const loading = !!state.loading[key];
   const error = state.errors[key] || null;
