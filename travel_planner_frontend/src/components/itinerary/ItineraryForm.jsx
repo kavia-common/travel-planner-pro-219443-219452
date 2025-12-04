@@ -1,9 +1,9 @@
-import React, { useEffect, useId, useState } from 'react';
+import React, { useEffect, useId, useMemo, useState } from 'react';
 import Button from '../common/Button';
 
 // PUBLIC_INTERFACE
 export default function ItineraryForm({ initial = null, onSubmit, onCancel, submitting = false }) {
-  /** Form for adding or editing an itinerary item. */
+  /** Form for adding or editing an itinerary item with basic validation. */
   const [title, setTitle] = useState(initial?.title || initial?.name || '');
   const [time, setTime] = useState(initial?.time || '');
   const [notes, setNotes] = useState(initial?.notes || '');
@@ -19,9 +19,16 @@ export default function ItineraryForm({ initial = null, onSubmit, onCancel, subm
     setType(initial?.type || 'activity');
   }, [initial]);
 
+  const clientErrors = useMemo(() => {
+    const errs = {};
+    if (!title.trim()) errs.title = 'Title is required';
+    return errs;
+  }, [title]);
+
   function handleSubmit(e) {
     e.preventDefault();
-    const payload = { title, time, notes, location, type };
+    if (Object.keys(clientErrors).length > 0) return;
+    const payload = { title: title.trim(), time, notes, location, type };
     onSubmit?.(payload);
   }
 
@@ -39,9 +46,16 @@ export default function ItineraryForm({ initial = null, onSubmit, onCancel, subm
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            aria-invalid={!!clientErrors.title}
+            aria-describedby={clientErrors.title ? `${formId}-title-error` : undefined}
             className="transition-base"
             style={{ padding: '8px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)' }}
           />
+          {clientErrors.title && (
+            <span id={`${formId}-title-error`} role="alert" style={{ color: 'var(--color-error)', fontSize: 12 }}>
+              {clientErrors.title}
+            </span>
+          )}
         </label>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -98,7 +112,9 @@ export default function ItineraryForm({ initial = null, onSubmit, onCancel, subm
 
       <div style={{ display: 'flex', gap: 8, marginTop: 12, justifyContent: 'flex-end' }}>
         <Button variant="ghost" type="button" onClick={onCancel}>Cancel</Button>
-        <Button variant="primary" type="submit" disabled={submitting}>{submitting ? 'Saving…' : (initial ? 'Save changes' : 'Add item')}</Button>
+        <Button variant="primary" type="submit" disabled={submitting || Object.keys(clientErrors).length > 0}>
+          {submitting ? 'Saving…' : (initial ? 'Save changes' : 'Add item')}
+        </Button>
       </div>
     </form>
   );

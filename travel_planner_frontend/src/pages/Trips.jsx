@@ -6,6 +6,7 @@ import Modal from '../components/common/Modal';
 import TripList from '../components/trips/TripList';
 import TripForm from '../components/trips/TripForm';
 import { useTrips } from '../hooks/useTrips';
+import { useToast } from '../components/common/Toast';
 
 /**
  * PUBLIC_INTERFACE
@@ -13,12 +14,15 @@ import { useTrips } from '../hooks/useTrips';
  */
 export default function Trips() {
   const { trips, loading, error, loadTrips, createTrip, updateTrip, removeTrip } = useTrips();
+  const { success, error: errorToast, info } = useToast();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    loadTrips().catch(() => {});
+    loadTrips().catch((e) => {
+      errorToast('Failed to load trips');
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -30,13 +34,30 @@ export default function Trips() {
     try {
       if (editing?.id) {
         await updateTrip(editing.id, payload);
+        success('Trip updated');
       } else {
         await createTrip(payload);
+        success('Trip created');
       }
       setOpen(false);
       setEditing(null);
+    } catch (e) {
+      errorToast('Unable to save trip');
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleDelete(trip) {
+    if (!trip) return;
+    // Confirmation dialog
+    const ok = window.confirm(`Remove trip "${trip.name || trip.title || trip.id}"? This cannot be undone.`);
+    if (!ok) return;
+    try {
+      await removeTrip(trip.id);
+      info('Trip removed');
+    } catch (e) {
+      errorToast('Failed to remove trip');
     }
   }
 
@@ -66,7 +87,7 @@ export default function Trips() {
             trips={trips}
             onView={(t) => {}}
             onEdit={(t) => { setEditing(t); setOpen(true); }}
-            onDelete={(t) => { removeTrip(t.id).catch(() => {}); }}
+            onDelete={handleDelete}
           />
         )}
       </Card>

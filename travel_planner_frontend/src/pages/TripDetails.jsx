@@ -7,6 +7,7 @@ import ItineraryView from '../components/itinerary/ItineraryView';
 import ItineraryForm from '../components/itinerary/ItineraryForm';
 import { useItinerary } from '../hooks/useItinerary';
 import { useTrips } from '../hooks/useTrips';
+import { useToast } from '../components/common/Toast';
 
 /**
  * PUBLIC_INTERFACE
@@ -16,6 +17,7 @@ export default function TripDetails() {
   const { tripId } = useParams();
   const { items, loading, error, loadItinerary, addItem, updateItem, removeItem } = useItinerary(tripId);
   const { getTrip, selectTrip } = useTrips();
+  const { success, error: errorToast, info } = useToast();
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -26,7 +28,9 @@ export default function TripDetails() {
     selectTrip(tripId);
     // try to hydrate trip info into store (no-op if fails)
     getTrip(tripId).catch(() => {});
-    loadItinerary().catch(() => {});
+    loadItinerary().catch((e) => {
+      errorToast('Failed to load itinerary');
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId]);
 
@@ -34,14 +38,35 @@ export default function TripDetails() {
     setSubmitting(true);
     try {
       if (editing?.id) {
+        // optimistic update: handled in hook; if error occurs, reload to rollback state
         await updateItem(editing.id, payload);
+        success('Itinerary updated');
       } else {
         await addItem(payload);
+        success('Itinerary item added');
       }
       setOpen(false);
       setEditing(null);
+    } catch (e) {
+      errorToast('Unable to save itinerary item');
+      // best-effort refresh
+      loadItinerary().catch(() => {});
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleRemove(it) {
+    if (!it) return;
+    const ok = window.confirm(`Remove itinerary item "${it.title || it.name || it.id}"?`);
+    if (!ok) return;
+    try {
+      await removeItem(it.id);
+      info('Item removed');
+    } catch (e) {
+      errorToast('Failed to remove item');
+      // refresh to correct any partial UI inconsistencies
+      loadItinerary().catch(() => {});
     }
   }
 
@@ -69,7 +94,7 @@ export default function TripDetails() {
           <ItineraryView
             items={items}
             onEdit={(it) => { setEditing(it); setOpen(true); }}
-            onRemove={(it) => { removeItem(it.id).catch(() => {}); }}
+            onRemove={handleRemove}
           />
         )}
       </Card>
