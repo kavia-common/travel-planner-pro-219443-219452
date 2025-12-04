@@ -1,11 +1,32 @@
 @import './theme/ocean.css';
 @import './theme/print.css';
-
-/* Map marker subtle transition (Ocean Professional) */
-.marker { transition: transform 150ms ease; }
+@import './styles/theme.css';
 @import './components/trips/TripWizard/wizard.css';
 
-/* baseline index styles (keep minimal to avoid conflicts) */
+/* baseline index styles (keep minimal to avoid conflicts and enable theme) */
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
-body { margin: 0; font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text); }
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+}
+
+/* utility */
+.text-muted { color: var(--color-text-muted); }
+.link { color: var(--color-primary); text-decoration: none; }
+.link:hover { opacity: 0.9; }
+
+.marker { transition: transform 150ms ease; }

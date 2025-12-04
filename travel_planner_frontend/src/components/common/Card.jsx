@@ -5,12 +5,12 @@ import React from 'react';
  * Themed Card component with optional header title.
  * Props:
  * - title?: string
- * - subtitle?: string (unused visually here)
+ * - subtitle?: string
  * - headerRight?: ReactNode
  * - className?: string
  */
 const Card = ({ title, children, className = '', headerRight = null, subtitle }) => (
-  <div className={`card ${className}`.trim()} tabIndex={0}>
+  <div className={`card surface ${className}`.trim()} tabIndex={0}>
     {(title || headerRight) && (
       <div className="card-header">
         <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px'}}>

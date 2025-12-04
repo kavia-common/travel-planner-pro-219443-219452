@@ -6,7 +6,7 @@ import React from 'react';
  */
 const Sidebar = ({ children, className = '' }) => {
   return (
-    <aside className={`sidebar ${className}`} style={{padding: '16px'}}>
+    <aside className={`sidebar surface surface--muted ${className}`.trim()} style={{padding: '16px'}}>
       {children}
     </aside>
   );
