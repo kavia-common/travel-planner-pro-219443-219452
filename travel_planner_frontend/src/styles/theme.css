@@ -1,0 +1,75 @@
+:root {
+  /* Ocean Professional Theme */
+  --color-primary: #2563EB; /* primary */
+  --color-secondary: #F59E0B; /* secondary/success accent */
+  --color-error: #EF4444;
+  --color-background: #f9fafb;
+  --color-surface: #ffffff;
+  --color-text: #111827;
+
+  /* Derived */
+  --color-muted: #6B7280;
+  --color-border: #E5E7EB;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05);
+  --shadow-md: 0 4px 10px rgba(17, 24, 39, 0.08);
+  --shadow-lg: 0 10px 25px rgba(17, 24, 39, 0.12);
+
+  /* Transitions */
+  --transition-base: all 200ms ease;
+
+  /* Gradient surface hint - "from-blue-500/10 to-gray-50" feel */
+  --gradient-start: rgba(37, 99, 235, 0.08); /* blue-500/10-ish */
+  --gradient-end: #f8fafc; /* gray-50-ish */
+}
+
+/* Dark theme override */
+[data-theme="dark"] {
+  --color-background: #0b1220;
+  --color-surface: #0f172a; /* slate-900-ish */
+  --color-text: #e5e7eb;
+  --color-muted: #94a3b8;
+  --color-border: #1f2937;
+
+  --gradient-start: rgba(37, 99, 235, 0.18);
+  --gradient-end: #0b1220;
+}
+
+/* Base Resets + Background */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  transition: var(--transition-base);
+}
+
+/* Gradient utility to apply subtle depth on surfaces */
+.gradient-surface {
+  background: linear-gradient(180deg, var(--gradient-start), var(--gradient-end));
+}
+
+/* Surface card background */
+.surface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

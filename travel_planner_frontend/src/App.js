@@ -1,48 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import Header from './components/common/Header';
+import Sidebar from './components/common/Sidebar';
+import Card from './components/common/Card';
+import Button from './components/common/Button';
+import { BrowserRouter } from 'react-router-dom';
+import { useTheme } from './hooks/useTheme';
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
-
-  // Effect to apply theme to document element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
+  /** App shell providing Header, Sidebar, and Main content placeholder. */
+  useTheme(); // initialize theme behavior (sets data-theme and persists)
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <div className="app-shell">
+        <Header />
+        <div className="main-area">
+          <div className="layout-row">
+            <Sidebar />
+            <main aria-label="Main content" className="transition-base" style={{ minHeight: '60vh' }}>
+              <Card title="Welcome" subtitle="Your travel planning hub">
+                <p className="text-muted">
+                  This is a placeholder for future routes and content (dashboard, trips, calendar).
+                </p>
+                <div className="gap-2" style={{ display: 'flex' }}>
+                  <Button variant="primary">Create Trip</Button>
+                  <Button variant="ghost">Import</Button>
+                </div>
+              </Card>
+            </main>
+          </div>
+        </div>
+      </div>
+    </BrowserRouter>
   );
 }
 
