@@ -52,6 +52,54 @@ Feature flags for visual verification:
 
 See .env.example for a complete list of variables.
 
+## Trip Templates
+
+The frontend includes a **Trip Templates** feature that lets users start a new trip from curated presets (e.g. Weekend Getaway, Business Trip, Family Vacation).
+
+Implementation details:
+
+- Template data lives entirely in the frontend at:
+  - `src/features/templates/templates.js`
+- Each template follows the `TripTemplate` structure (documented via JSDoc in that file):
+  - `id` – stable string identifier (e.g. `weekend-getaway`)
+  - `name` – display name
+  - `description` – short summary
+  - `recommendedDurationDays` – number of days to preselect when building dates
+  - `tags` – free-form tags used for badges and potential filtering
+  - `days` – array of day objects `{ dayIndex, title, notes, activities[] }`
+    - each `activities[]` entry has `{ time, title, category, durationMins }` (minutes to keep units explicit)
+
+To add a new template:
+
+1. Open `src/features/templates/templates.js`.
+2. Append a new object to the exported `TRIP_TEMPLATES` array, following the existing examples.
+3. Ensure `id` is unique and stable – changing it later will break any bookmarks referencing it.
+4. Keep `durationMins` in minutes for all activities so downstream logic can safely calculate totals.
+5. Optional: include 3–7 activities per day to keep previews readable.
+
+Feature flag control:
+
+- Trip templates are controlled by the `TEMPLATES` flag, which is **on by default**.
+- To explicitly disable templates in an environment, set:
+  - `REACT_APP_FEATURE_FLAGS=templates=false` (comma-separated format), or
+  - `REACT_APP_TEMPLATES=false` (dedicated env).
+- When disabled, the UI entry points for choosing templates are hidden.
+
+User experience:
+
+- From the **Trips** page, click:
+  - **New Trip** (if the Trip Wizard feature is enabled), or
+  - **Blank Trip** or **Choose a Template** when the wizard is disabled.
+- Choosing a template opens a picker modal with cards for:
+  - Weekend Getaway
+  - Business Trip
+  - Family Vacation
+- After selecting, a **draft trip** is pre-populated with:
+  - Title (template name)
+  - Start/end dates (based on today + `recommendedDurationDays`)
+  - Day-by-day activities (shown in a Trip Preview section)
+- The pre-filled details can be edited before saving the trip.
+
 ## Notifications and Reminders
 
 This app provides in-app notifications and reminders with optional browser notifications.

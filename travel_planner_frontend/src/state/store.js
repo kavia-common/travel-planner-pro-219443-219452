@@ -12,6 +12,7 @@ const initialState = {
   tripsTotal: 0,
   itineraries: {}, // { [tripId]: { items: [], lastFetched: number } }
   selectedTrip: null,
+  draftTemplateTrip: null, // holds a pre-populated trip draft created from a template
   loading: {}, // { [key]: boolean }
   errors: {}, // { [key]: Error|string|null }
 };
@@ -24,6 +25,8 @@ const ACTIONS = {
   SET_ITINERARY: 'SET_ITINERARY',
   UPSERT_TRIP: 'UPSERT_TRIP',
   REMOVE_TRIP: 'REMOVE_TRIP',
+  SET_DRAFT_TEMPLATE_TRIP: 'SET_DRAFT_TEMPLATE_TRIP',
+  CLEAR_DRAFT_TEMPLATE_TRIP: 'CLEAR_DRAFT_TEMPLATE_TRIP',
 };
 
 function reducer(state, action) {
@@ -82,6 +85,18 @@ function reducer(state, action) {
         },
       };
     }
+    case ACTIONS.SET_DRAFT_TEMPLATE_TRIP: {
+      return {
+        ...state,
+        draftTemplateTrip: action.payload || null,
+      };
+    }
+    case ACTIONS.CLEAR_DRAFT_TEMPLATE_TRIP: {
+      return {
+        ...state,
+        draftTemplateTrip: null,
+      };
+    }
     default:
       return state;
   }
@@ -123,6 +138,13 @@ export const actionCreators = {
   setItinerary: (tripId, items, timestamp) => ({
     type: ACTIONS.SET_ITINERARY,
     payload: { tripId, items, timestamp },
+  }),
+  setDraftTemplateTrip: (draft) => ({
+    type: ACTIONS.SET_DRAFT_TEMPLATE_TRIP,
+    payload: draft,
+  }),
+  clearDraftTemplateTrip: () => ({
+    type: ACTIONS.CLEAR_DRAFT_TEMPLATE_TRIP,
   }),
 };
 
